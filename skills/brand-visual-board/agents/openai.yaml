@@ -1,0 +1,6 @@
+interface:
+  display_name: "Brand Visual Board"
+  short_description: "把品牌基础和表达系统转成可评审的视觉方向与独立展示板"
+  default_prompt: "Use $brand-visual-board to translate my BRAND.md and MESSAGING.md into reviewable visual directions and a browser-ready board."
+policy:
+  allow_implicit_invocation: true

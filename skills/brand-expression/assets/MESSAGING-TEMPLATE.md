@@ -1,0 +1,93 @@
+---
+schema: brand-expression/v1
+brand_id: ""
+brand_name: ""
+message_status: working
+version: 0.1
+updated: YYYY-MM-DD
+foundation_file: BRAND.md
+foundation_version: ""
+foundation_read_date: YYYY-MM-DD
+intended_use: []
+audiences: []
+channels: []
+owner: ""
+approvers: []
+approved_by: []
+approved_at: ""
+allowed_use: internal
+---
+
+# 品牌表达系统
+
+> 本文件从 `BRAND.md` 派生。公开文案可以自然表达；事实、决策、证据和权限仍以 `BRAND.md` 与下方 Claim Map 为准。
+
+## 使用说明与状态
+
+- 当前用途：
+- 当前受众与情境：
+- 当前渠道：
+- 已批准范围：
+- 当前限制：
+
+## 推荐定位与候选领域
+
+### 推荐方向
+
+- 核心命题：
+- 受众张力：
+- 品牌承诺：
+- 机制与证明：
+- 选择它意味着：
+- 当前状态：candidate
+
+## 核心信息架构
+
+- 受众正在经历：
+- 希望发生的信念转移：
+- 核心承诺：
+- 价值如何产生：
+- 为什么相信：
+- 适合与不适合：
+- 不能保证：
+- 唯一主要行动：
+
+## 使命、愿景与观点
+
+## 声音系统
+
+- voice basis：
+- 与受众的关系姿态：
+- 必须做到：
+- 禁止模式：
+- 不同场景变化：
+
+## 表达库
+
+### 主张与口号
+
+### 个人或品牌简介
+
+### 产品/服务说明
+
+## 个人 IP 内容支柱（适用时）
+
+| 支柱 | 服务的问题 | 当下/持续价值 | 证明方式 | 业务连接 | 可持续题型 |
+|---|---|---|---|---|---|
+
+## 渠道应用
+
+## Claim Map
+
+| Copy ID | 公开表达/用途 | 来源 Claim/Decision ID | 来源状态 | permission | 放行结论与限制 |
+|---|---|---|---|---|---|
+
+## 验证与学习记录
+
+| Learning ID | 被测试的 Copy/Decision ID | learning_status | 渠道与日期 | 目标信号 | 结果与混杂因素 | 下一步 |
+|---|---|---|---|---|---|---|
+
+## 版本记录
+
+| 日期 | 版本 | 变化 | 原因 | 批准状态 |
+|---|---|---|---|---|

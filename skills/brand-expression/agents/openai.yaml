@@ -1,0 +1,6 @@
+interface:
+  display_name: "品牌定位与宣传表达"
+  short_description: "把品牌事实加工成定位、故事、口号、简介与销售表达"
+  default_prompt: "Use $brand-expression to turn my BRAND.md into persuasive public messaging without inventing facts or strengthening unsupported claims."
+policy:
+  allow_implicit_invocation: true

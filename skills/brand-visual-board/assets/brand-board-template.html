@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en"><!-- Set lang to the delivered board's primary language. -->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Brand Board — Neutral Concept Template</title><!-- Replace with the actual brand and board status. -->
+  <style>
+    :root {
+      --ink: #151515;
+      --paper: #f3efe7;
+      --paper-2: #fffdf8;
+      --muted: #69665f;
+      --line: rgba(21, 21, 21, 0.18);
+      --accent: #b84d2b;
+      --accent-soft: #efd3c8;
+      --dark: #1c2423;
+      --dark-muted: #a9b2ae;
+      --radius: 18px;
+      --display: ui-serif, Georgia, "Times New Roman", serif;
+      --body: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--body);
+      line-height: 1.5;
+    }
+
+    a { color: inherit; }
+
+    .shell {
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .cover {
+      min-height: 82vh;
+      display: grid;
+      align-items: end;
+      padding: 32px 0 52px;
+      background:
+        radial-gradient(circle at 78% 18%, rgba(184, 77, 43, 0.24), transparent 26%),
+        linear-gradient(135deg, var(--paper-2), var(--paper));
+      border-bottom: 1px solid var(--line);
+    }
+
+    .status {
+      display: inline-flex;
+      width: fit-content;
+      padding: 8px 12px;
+      border: 1px solid currentColor;
+      border-radius: 999px;
+      font: 700 0.72rem/1 var(--mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .cover h1 {
+      max-width: 900px;
+      margin: 28px 0 16px;
+      font-family: var(--display);
+      font-size: clamp(4rem, 12vw, 9.5rem);
+      font-weight: 500;
+      line-height: 0.86;
+      letter-spacing: -0.065em;
+    }
+
+    .cover-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr);
+      gap: 36px;
+      align-items: end;
+    }
+
+    .lede {
+      max-width: 720px;
+      margin: 0;
+      font-size: clamp(1.1rem, 2vw, 1.45rem);
+    }
+
+    .meta {
+      display: grid;
+      gap: 9px;
+      font: 0.78rem/1.35 var(--mono);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .meta div {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      padding-top: 9px;
+      border-top: 1px solid var(--line);
+    }
+
+    main { padding: 84px 0 120px; }
+
+    section { margin-top: 96px; }
+    section:first-child { margin-top: 0; }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 170px minmax(0, 1fr);
+      gap: 28px;
+      margin-bottom: 30px;
+      align-items: start;
+    }
+
+    .kicker {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font: 700 0.73rem/1.2 var(--mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin: 0;
+      max-width: 780px;
+      font-family: var(--display);
+      font-size: clamp(2.3rem, 5vw, 4.8rem);
+      font-weight: 500;
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+    }
+
+    h3 { margin: 0 0 10px; font-size: 1.15rem; }
+    p { text-wrap: pretty; }
+
+    .grid { display: grid; gap: 18px; }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .card {
+      min-width: 0;
+      padding: 24px;
+      background: color-mix(in srgb, var(--paper-2) 88%, transparent);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .card.selected {
+      background: var(--dark);
+      color: var(--paper-2);
+      border-color: var(--dark);
+    }
+
+    .card .tag,
+    .concept-tag {
+      display: inline-block;
+      margin-bottom: 42px;
+      color: var(--muted);
+      font: 700 0.68rem/1 var(--mono);
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .selected .tag { color: var(--dark-muted); }
+
+    .direction-name {
+      margin: 0 0 14px;
+      font-family: var(--display);
+      font-size: clamp(2rem, 3.5vw, 3.4rem);
+      font-weight: 500;
+      line-height: 0.95;
+    }
+
+    .small-list {
+      padding: 0;
+      margin: 24px 0 0;
+      list-style: none;
+      border-top: 1px solid currentColor;
+    }
+
+    .small-list li {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 10px 0;
+      border-bottom: 1px solid currentColor;
+      font-size: 0.82rem;
+    }
+
+    .swatches {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .swatch {
+      min-height: 210px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 18px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      overflow-wrap: anywhere;
+    }
+
+    .swatch span { font: 0.72rem/1.35 var(--mono); }
+
+    .type-stage {
+      padding: clamp(28px, 6vw, 72px);
+      background: var(--paper-2);
+      border: 1px solid var(--line);
+      border-radius: calc(var(--radius) * 1.25);
+    }
+
+    .display-sample {
+      margin: 0 0 48px;
+      font-family: var(--display);
+      font-size: clamp(3.2rem, 9vw, 8.6rem);
+      line-height: 0.82;
+      letter-spacing: -0.065em;
+    }
+
+    .body-sample {
+      max-width: 660px;
+      font-size: clamp(1.05rem, 2vw, 1.35rem);
+    }
+
+    .frames { display: grid; gap: 20px; }
+
+    .frame {
+      min-height: 420px;
+      position: relative;
+      overflow: hidden;
+      padding: 28px;
+      border-radius: calc(var(--radius) * 1.25);
+      background: var(--dark);
+      color: var(--paper-2);
+    }
+
+    .frame.light { background: var(--paper-2); color: var(--ink); border: 1px solid var(--line); }
+
+    .frame .concept-tag {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      margin: 0;
+      color: inherit;
+      opacity: 0.72;
+    }
+
+    .hero-mock {
+      min-height: 520px;
+      display: grid;
+      align-content: end;
+      background:
+        linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.72)),
+        radial-gradient(circle at 65% 30%, var(--accent), transparent 30%),
+        var(--dark);
+    }
+
+    .hero-mock h3 {
+      max-width: 770px;
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(3rem, 8vw, 7.3rem);
+      font-weight: 500;
+      line-height: 0.86;
+      letter-spacing: -0.055em;
+    }
+
+    .tile {
+      min-height: 420px;
+      display: grid;
+      align-content: space-between;
+      background: var(--accent-soft);
+      color: var(--ink);
+    }
+
+    .tile-mark {
+      font-family: var(--display);
+      font-size: clamp(5rem, 12vw, 10rem);
+      line-height: 0.7;
+      letter-spacing: -0.08em;
+    }
+
+    .mark-study {
+      display: grid;
+      place-items: center;
+      text-align: center;
+    }
+
+    .wordmark {
+      font-family: var(--display);
+      max-width: 100%;
+      font-size: clamp(2.4rem, 5vw, 4.8rem);
+      letter-spacing: -0.05em;
+      overflow-wrap: anywhere;
+    }
+
+    .validation {
+      display: grid;
+      gap: 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .validation-row {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 24px;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .validation-row strong { font: 0.74rem/1.4 var(--mono); text-transform: uppercase; }
+    .validation-row p { margin: 0; }
+
+    footer {
+      padding: 28px 0 40px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      font: 0.75rem/1.5 var(--mono);
+    }
+
+    @media (max-width: 760px) {
+      .shell { width: min(100% - 24px, 1180px); }
+      .cover { min-height: 700px; }
+      .cover-grid, .section-head, .grid.three, .grid.two { grid-template-columns: 1fr; }
+      .cover h1 { font-size: clamp(3.4rem, 20vw, 6.2rem); }
+      .meta { margin-top: 26px; }
+      main { padding: 58px 0 80px; }
+      section { margin-top: 72px; }
+      .swatches { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .swatch { min-height: 150px; }
+      .validation-row { grid-template-columns: 1fr; gap: 6px; }
+      .frame, .hero-mock { min-height: 380px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Replace the sample content and composition; do not ship this preview unchanged. -->
+  <header class="cover">
+    <div class="shell">
+      <span class="status">Concept content · Template preview</span>
+      <h1>Brand<br>Board</h1>
+      <div class="cover-grid">
+        <p class="lede">A standalone structure for showing a visual decision, its alternatives, and the evidence still needed before production.</p>
+        <div class="meta" aria-label="Board metadata">
+          <div><span>Foundation</span><span>v0.1</span></div>
+          <div><span>Messaging</span><span>Not supplied</span></div>
+          <div><span>Mode</span><span>Concept</span></div>
+          <div><span>Status</span><span>Not approved</span></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section aria-labelledby="directions-title">
+      <div class="section-head">
+        <p class="kicker">01 / Directions</p>
+        <h2 id="directions-title">Three postures, not three palette swaps.</h2>
+      </div>
+      <div class="grid three">
+        <article class="card">
+          <span class="tag">Direction A · unranked</span>
+          <p class="direction-name">Quiet Utility</p>
+          <p>Measured, useful and warm enough to trust. Replace this with a direction grounded in the approved strategy.</p>
+          <ul class="small-list"><li><span>Best fit</span><span>Primary surface</span></li><li><span>Main risk</span><span>Too restrained</span></li></ul>
+        </article>
+        <article class="card">
+          <span class="tag">Direction B · unranked</span>
+          <p class="direction-name">Open Signal</p>
+          <p>A more expressive posture with a different hierarchy, image logic and interaction rhythm.</p>
+          <ul class="small-list"><li><span>Best fit</span><span>Campaigns</span></li><li><span>Main risk</span><span>Short shelf life</span></li></ul>
+        </article>
+        <article class="card">
+          <span class="tag">Direction C · unranked</span>
+          <p class="direction-name">Exact Matter</p>
+          <p>A technical posture built around evidence, material detail and dense information systems.</p>
+          <ul class="small-list"><li><span>Best fit</span><span>Product detail</span></li><li><span>Main risk</span><span>Feels clinical</span></li></ul>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="palette-title">
+      <div class="section-head"><p class="kicker">02 / Roles</p><h2 id="palette-title">Color has a job.</h2></div>
+      <div class="swatches">
+        <div class="swatch" style="background:#151515;color:#fffdf8"><strong>Ink</strong><span>#151515 · primary text</span></div>
+        <div class="swatch" style="background:#f3efe7;color:#151515"><strong>Paper</strong><span>#F3EFE7 · surface</span></div>
+        <div class="swatch" style="background:#b84d2b;color:#fffdf8"><strong>Signal</strong><span>#B84D2B · emphasis</span></div>
+        <div class="swatch" style="background:#1c2423;color:#fffdf8"><strong>Depth</strong><span>#1C2423 · inverse surface</span></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="type-title">
+      <div class="section-head"><p class="kicker">03 / Typography</p><h2 id="type-title">Show the hierarchy in use.</h2></div>
+      <div class="type-stage">
+        <p class="display-sample">Form follows proof.</p>
+        <p class="body-sample">This template uses system fallbacks. A delivered board should name the recommended fonts, language coverage, source and license-check status.</p>
+      </div>
+    </section>
+
+    <section aria-labelledby="frames-title">
+      <div class="section-head"><p class="kicker">04 / Applications</p><h2 id="frames-title">Concept frames reveal whether the system travels.</h2></div>
+      <div class="frames">
+        <article class="frame hero-mock">
+          <span class="concept-tag">Concept content</span>
+          <h3>One clear promise, supported by visible evidence.</h3>
+        </article>
+        <div class="grid two">
+          <article class="frame tile">
+            <span class="concept-tag">Concept content</span>
+            <div class="tile-mark">Aa</div>
+            <p>Campaign or social tile study. Replace with a surface the brand will actually maintain.</p>
+          </article>
+          <article class="frame light mark-study">
+            <span class="concept-tag">Concept logo direction</span>
+            <div><div class="wordmark">WORDMARK</div><p>Direction study — not a final vector or cleared trademark.</p></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="checks-title">
+      <div class="section-head"><p class="kicker">05 / Checks</p><h2 id="checks-title">A visual decision includes what remains unproven.</h2></div>
+      <div class="validation">
+        <div class="validation-row"><strong>Approved</strong><p>List the visual principles accepted by the named approver and their application scope.</p></div>
+        <div class="validation-row"><strong>Unverified</strong><p>Font license, image rights, language coverage, contrast pairs and production constraints.</p></div>
+        <div class="validation-row"><strong>Do not infer</strong><p>Market leadership, product performance, customer proof, heritage or sustainability from aesthetics.</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="shell">Concept template · Replace sample content before delivery · No external runtime required</div></footer>
+</body>
+</html>

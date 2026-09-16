@@ -1,0 +1,25 @@
+name: Verify public package
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check release boundary
+        run: python3 scripts/verify_release.py .
+      - name: Validate skill structure
+        run: python3 scripts/validate_skills.py .
+      - name: Test repository helpers
+        run: python3 -m unittest discover -s tests
+      - name: Run synthetic demo
+        run: python3 scripts/run_demo.py --output /tmp/branding-skills-demo
