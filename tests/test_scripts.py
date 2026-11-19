@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -15,6 +16,17 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 CREATE_SCRIPT = REPO_ROOT / "scripts" / "create_brand_project.py"
 DEMO_SCRIPT = REPO_ROOT / "scripts" / "run_demo.py"
 VERIFY_SCRIPT = REPO_ROOT / "scripts" / "verify_release.py"
+EXAMPLE = REPO_ROOT / "examples" / "fictional-b2b"
+DEMO_FILES = (
+    "SOURCE-MATERIAL.md",
+    "AGENTS.md",
+    "PROGRESS.md",
+    "BRAND.md",
+    "MESSAGING.md",
+    "COMPANY.md",
+    "SITE-BRIEF.md",
+    "reports/2025-01-15-client-confirmation.md",
+)
 
 
 class CreateBrandProjectTests(unittest.TestCase):
@@ -166,7 +178,7 @@ class DemoTests(unittest.TestCase):
 
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn("DEMO PASSED", result.stdout)
-            for name in ("SOURCE-MATERIAL.md", "BRAND.md", "MESSAGING.md"):
+            for name in DEMO_FILES:
                 path = destination / name
                 self.assertTrue(path.is_file())
                 text = path.read_text(encoding="utf-8").lower()
@@ -196,6 +208,52 @@ class DemoTests(unittest.TestCase):
                 (destination / "existing.txt").read_text(encoding="utf-8"),
                 "keep",
             )
+
+    def test_example_passes_project_check_without_warnings(self) -> None:
+        result = run_script("check_brand_project.py", EXAMPLE)
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("5 files checked, 0 warnings", result.stdout)
+
+    def test_example_shows_a_refined_and_confirmed_statement(self) -> None:
+        text = (EXAMPLE / "BRAND.md").read_text(encoding="utf-8")
+        self.assertEqual(brandlib.parse_frontmatter(text)["schema"], "brand-foundation/v2")
+        rows = list(brandlib.iter_table_rows(text, ["Decision ID", "formed_by", "origin_ref"]))
+        refined = [
+            row
+            for row in rows
+            if row["formed_by"] == "ai-refined" and row["decision_status"] == "approved"
+        ]
+        self.assertTrue(refined)
+        self.assertTrue(all(row["origin_ref"] for row in refined))
+        self.assertTrue(any(row["decision_status"] == "candidate" for row in rows))
+        self.assertTrue(any(row["decision_status"] == "rejected" for row in rows))
+        report = (EXAMPLE / "reports" / "2025-01-15-client-confirmation.md").read_text(encoding="utf-8")
+        for token in ("您原来的说法", "建议的说法", "为什么这样改"):
+            self.assertIn(token, report, token)
+
+    def test_example_company_file_follows_the_contract(self) -> None:
+        text = (EXAMPLE / "COMPANY.md").read_text(encoding="utf-8")
+        headings = [line for line in text.splitlines() if line.startswith("## ")]
+        self.assertEqual(len(headings), 12)
+        self.assertLessEqual(len(text.splitlines()), 150)
+        brief = (EXAMPLE / "SITE-BRIEF.md").read_text(encoding="utf-8")
+        self.assertEqual(len([line for line in brief.splitlines() if line.startswith("## ")]), 9)
+
+    def test_demo_fails_when_fixture_breaks_the_check(self) -> None:
+        # run_demo must really run the self-check: hand it a broken copy of the example.
+        with tempfile.TemporaryDirectory() as temporary_root:
+            fixture = Path(temporary_root) / "fixture"
+            shutil.copytree(EXAMPLE, fixture)
+            brief = fixture / "SITE-BRIEF.md"
+            brief.write_text(
+                brief.read_text(encoding="utf-8") + "\n另见 COPY-999（虚构）。\n", encoding="utf-8"
+            )
+            result = run_script(
+                "run_demo.py", "--output", Path(temporary_root) / "out", "--fixture", fixture
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("unknown reference COPY-999", result.stdout)
+            self.assertNotIn("DEMO PASSED", result.stdout)
 
 
 class VerifyReleaseTests(unittest.TestCase):
