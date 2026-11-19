@@ -6,6 +6,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from helpers import run_script, write
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CREATE_SCRIPT = REPO_ROOT / "scripts" / "create_brand_project.py"
@@ -152,6 +154,16 @@ class VerifyReleaseTests(unittest.TestCase):
 
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("excluded file type", result.stdout)
+
+    def test_requires_fictional_marker_in_evals(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_root:
+            root = Path(temporary_root)
+            write(root / "evals" / "README.md", "# Evals\n")
+            write(root / "evals" / "01-sample.md", "# 场景\n没有标注\n")
+            result = run_script("verify_release.py", root)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("eval lacks fictional marker: evals/01-sample.md", result.stdout)
+            self.assertNotIn("evals/README.md", result.stdout)
 
 
 if __name__ == "__main__":
