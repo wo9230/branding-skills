@@ -20,6 +20,7 @@ This step is complete when every public claim can be traced to a Claim ID, Decis
 - **Positioning and verbal identity:** Read [references/expression-method.md](references/expression-method.md).
 - **Personal or founder IP:** Also read [references/personal-ip.md](references/personal-ip.md).
 - **Offer, product, service, course, community, or landing-page copy:** Also read [references/offer-and-channel-copy.md](references/offer-and-channel-copy.md).
+- **Website page copy:** Read the "网站页面文案" section of [references/offer-and-channel-copy.md](references/offer-and-channel-copy.md). Build on the brand statements already confirmed in `BRAND.md`, register a Copy ID for every load-bearing line so `SITE-BRIEF.md` can reference it, and read `segment` and `languages` in `BRAND.md` when the interview language differs from the site language.
 - **Full messaging system:** Read all three references and create the relevant sections of `MESSAGING.md`.
 - **Channel adaptation:** Read the existing approved/working message system; adapt hierarchy and length without reopening strategy unless the channel exposes a real conflict.
 

@@ -281,3 +281,24 @@ class HandoffContractTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ExpressionAndVisualContractTests(unittest.TestCase):
+    def test_expression_covers_website_page_copy(self) -> None:
+        text = repo_text("skills/brand-expression/references/offer-and-channel-copy.md")
+        for token in ("## 网站页面文案", "Copy ID", "SITE-BRIEF.md", "segment", "export-b2b"):
+            self.assertIn(token, text, token)
+        entry = repo_text("skills/brand-expression/SKILL.md")
+        self.assertIn("Website page copy", entry)
+        self.assertLessEqual(len(entry.splitlines()), 120)
+
+    def test_visual_board_can_emit_design_md(self) -> None:
+        contract = repo_text("skills/brand-visual-board/references/output-contracts.md")
+        for token in (
+            "## `output/DESIGN.md`",
+            "committed",
+            "查阅日期",
+            "google-labs-code/design.md",
+        ):
+            self.assertIn(token, contract, token)
+        self.assertIn("output/DESIGN.md", repo_text("skills/brand-visual-board/SKILL.md"))

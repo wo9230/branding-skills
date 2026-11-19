@@ -67,6 +67,42 @@
 
 记录设计变量的适用范围。未经测试的值不要命名为 `accessible`、`production` 或 `approved`。
 
+## `output/DESIGN.md`
+
+给建站 AI 直接读取的视觉规范，采用 google-labs-code/design.md 的开放格式。它把已经确定的视觉方向写成机器可读的设计变量加简短说明，不是第二份品牌事实源。
+
+什么时候输出：
+
+- `committed` 模式，并且视觉方向已经选定或已获批准时输出。
+- 概念探索模式默认不输出。用户明确要时可以输出，但 `description` 开头写明 `CONCEPT — NOT APPROVED`，Overview 第一句重复这一点。
+- 用户不需要交给建站 AI 时不必生成。
+
+格式要点（按该格式的官方说明）：
+
+- 文件最前面是 YAML 文件头，第一行必须是 `---`。文件头里放 `version`、`name`、可选的 `description`，以及设计变量分组：`colors`、`typography`、`rounded`、`spacing`，需要时再加 `motion`、`components`。
+- 颜色用 CSS 颜色值，推荐十六进制。字号、间距、圆角用带单位的尺寸，单位为 `px`、`em` 或 `rem`。一个变量引用另一个变量时写成 `{colors.primary}` 这样的路径。
+- 正文各节用二级标题，出现的小节按这个顺序：Overview、Colors、Typography、Layout、Elevation & Depth、Shapes、Motion & Micro-interaction、Voice & Content Strategy、Components、Do's and Don'ts。用不到的小节省略，不留空壳；同一个小节标题不能出现两次。
+- 没有用途的变量不生成。
+
+与本技能其他产物的对应：
+
+| `DESIGN.md` | 来自 |
+|---|---|
+| `colors`、Colors | `brand-system.md` 的角色化颜色；与 `brand-variables.css` 的 `--color-*` 一一对应 |
+| `typography`、Typography | `brand-system.md` 的字体与层级；与 `--font-*` 对应；另记字体来源和授权状态 |
+| `spacing`、`rounded`、Layout、Shapes | `brand-system.md` 的版式与图形原则 |
+| Voice & Content Strategy | 只写指向：声音以 `MESSAGING.md` 为准，不在这里另写一套 |
+| Do's and Don'ts | `brand-system.md` 的禁止项 |
+
+来源与状态：
+
+- 文件头结束后的第一行用 HTML 注释写明依据：`BRAND.md` 和 `MESSAGING.md` 的版本、读取日期、模式和批准状态。注释不能放在文件头之前。
+- Overview 里用一两句说明这套视觉方向对应哪条定位，引用 Decision ID。不重复品牌事实，不写文案。
+- 未经测试的值不在名称或说明里写成 `accessible`；对比度声明要有测量依据。
+- 三份产物说法不一致时，以 `brand-system.md` 为准并修正另外两份。
+
+格式来源：google-labs-code/design.md 仓库的格式说明（`docs/spec.md`，当时标注的版本为 alpha）；查阅日期：2026-11-19。这个格式还在演进，生成前以它当时的官方说明为准，有出入时按官方说明写，并更新这里的查阅日期。
+
 ## 浏览器检查
 
 至少检查：
