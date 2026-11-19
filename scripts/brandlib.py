@@ -31,6 +31,7 @@ STAGE_NAMES = {
 STAGE_STATUSES = ("pending", "in-progress", "awaiting-evidence", "done", "not-selected")
 STAGE_STATUS_PREFIXES = ("deferred: ", "skipped: ")
 
+RECORD_STATUSES = ("in-progress", "working", "approved", "archived")
 DECISION_STATUSES = ("candidate", "approved", "rejected", "superseded")
 FORMED_BY = ("client-original", "ai-refined", "co-edited")
 NEW_DECISION_PREFIXES = (

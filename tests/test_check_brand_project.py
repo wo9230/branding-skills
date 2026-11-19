@@ -348,6 +348,69 @@ class CheckBrandProjectTests(unittest.TestCase):
             edits={"MESSAGING.md": [("foundation_version: 0.3", 'foundation_version: ""')]},
         )
 
+    def test_handoff_files_go_stale_when_messaging_moves_on(self) -> None:
+        # Raised in PR review: MESSAGING.md can change while BRAND.md does not.
+        newer_messaging = {
+            "MESSAGING.md": [
+                ("version: 0.1\nfoundation_version: 0.3", "version: 0.2\nfoundation_version: 0.3")
+            ]
+        }
+        result = self.check(edits=newer_messaging)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        for name in ("COMPANY.md", "SITE-BRIEF.md"):
+            self.assertIn(
+                f"- WARN: {name}: stale (generated from MESSAGING.md 0.1, current 0.2)",
+                result.stdout,
+            )
+
+    def test_empty_messaging_version_is_not_stale(self) -> None:
+        result = self.check(
+            edits={
+                "MESSAGING.md": [
+                    ("version: 0.1\nfoundation_version: 0.3", "version: 0.2\nfoundation_version: 0.3")
+                ],
+                "COMPANY.md": [("messaging_version: 0.1", 'messaging_version: ""')],
+                "SITE-BRIEF.md": [("messaging_version: 0.1", 'messaging_version: ""')],
+            }
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("0 warnings", result.stdout)
+
+    def test_invalid_messaging_version_fails(self) -> None:
+        self.assert_error(
+            "COMPANY.md: invalid version 'latest'",
+            edits={"COMPANY.md": [("messaging_version: 0.1", "messaging_version: latest")]},
+        )
+
+    def test_segment_must_match_between_brand_and_progress(self) -> None:
+        # Raised in PR review: two different valid segments used to pass.
+        self.assert_error(
+            "PROGRESS.md: segment 'dtc-ecommerce' does not match BRAND.md 'export-b2b'",
+            edits={"PROGRESS.md": [("segment: export-b2b", "segment: dtc-ecommerce")]},
+        )
+        # Before stage 0 settles the client type one side is still unknown; that is not a mismatch.
+        result = self.check(edits={"PROGRESS.md": [("segment: export-b2b", "segment: unknown")]})
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_record_status_must_be_a_known_value(self) -> None:
+        # Raised in PR review: a decorated value skipped the "approved needs passed gates" rule.
+        for bad in ("已批准", "Approved", "approved（客户已签）"):
+            self.assert_error(
+                f"BRAND.md: invalid record_status '{bad}'",
+                edits={"BRAND.md": [("record_status: working", f"record_status: {bad}")]},
+            )
+
+    def test_v1_record_with_unknown_record_status_only_warns(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_root:
+            project = Path(temporary_root) / "legacy"
+            project.mkdir()
+            text = V1_BRAND_TEXT.replace("record_status: working", "record_status: 工作稿")
+            self.assertNotEqual(text, V1_BRAND_TEXT)
+            (project / "BRAND.md").write_text(text, encoding="utf-8")
+            result = run_script("check_brand_project.py", project)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("- WARN: BRAND.md: invalid record_status '工作稿'", result.stdout)
+
     def test_rejects_a_path_that_is_not_a_directory(self) -> None:
         result = run_script("check_brand_project.py", Path(tempfile.gettempdir()) / "no-such-project-dir")
         self.assertNotEqual(result.returncode, 0)

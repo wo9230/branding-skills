@@ -35,6 +35,11 @@ class BrandlibTests(unittest.TestCase):
             brandlib.DECISION_STATUSES, ("candidate", "approved", "rejected", "superseded")
         )
 
+    def test_record_status_vocabulary(self) -> None:
+        self.assertEqual(
+            brandlib.RECORD_STATUSES, ("in-progress", "working", "approved", "archived")
+        )
+
     def test_version_tuple_orders_numerically(self) -> None:
         self.assertGreater(brandlib.version_tuple("0.10"), brandlib.version_tuple("0.9"))
         self.assertEqual(brandlib.version_tuple("1"), (1,))

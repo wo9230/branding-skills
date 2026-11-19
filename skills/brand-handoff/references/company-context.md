@@ -64,7 +64,7 @@ allowed_use: internal
 
 ## 过期判断
 
-`BRAND.md` 的 `version` 高于本文件的 `foundation_version`，本文件即过期，应重新生成。版本号按数字比较：`0.10` 高于 `0.9`。`scripts/check_brand_project.py` 会报告过期。读到过期的 `COMPANY.md` 时，以 `BRAND.md` 为准，并提醒重新生成。
+`BRAND.md` 的 `version` 高于本文件的 `foundation_version`，本文件即过期，应重新生成。填了 `messaging_version` 时，`MESSAGING.md` 的 `version` 比它高也算过期。版本号按数字比较：`0.10` 高于 `0.9`。`scripts/check_brand_project.py` 会报告过期。读到过期的 `COMPANY.md` 时，以 `BRAND.md` 为准，并提醒重新生成。
 
 ## 写完后的自查
 

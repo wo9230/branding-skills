@@ -79,7 +79,7 @@ platform: ""
 
 ## 版本与过期
 
-每份派生文件都在文件头记录生成时依据的版本。`BRAND.md` 的 `version` 更高时，派生文件即过期。`scripts/check_brand_project.py <客户项目目录>` 会列出过期的文件，以及引用了不存在编号的地方。
+每份派生文件都在文件头记录生成时依据的版本。`BRAND.md` 的 `version` 更高时，派生文件即过期。`COMPANY.md` 和 `SITE-BRIEF.md` 还记录了 `messaging_version`：`MESSAGING.md` 的 `version` 比它高时，这两份文件同样过期。`scripts/check_brand_project.py <客户项目目录>` 会列出过期的文件，以及引用了不存在编号的地方。
 
 ## 与其他技能库的衔接
 

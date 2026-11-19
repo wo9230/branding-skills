@@ -9,7 +9,7 @@
 - Refine-then-confirm method in `brand-foundation`: the client's own wording is kept as a source, the weak points are named, at most three refined versions are offered from registered facts only, and nothing is final until the named approver confirms it.
 - Strategy and execution method in `brand-foundation`: diagnosis, guiding policy, positioning elements, product, price, channel, and promotion decisions.
 - `brand-handoff`: `COMPANY.md`, a one-to-two-page company context any agent can read first; `AGENTS.md`, a pointer file; and `SITE-BRIEF.md`, a stack-agnostic site brief produced when the website module was done.
-- `scripts/check_brand_project.py`: a read-only check for stale derived files, references to missing ids, forbidden progress states, and approvals without an approver or date.
+- `scripts/check_brand_project.py`: a read-only check for derived files that are stale against `BRAND.md` or `MESSAGING.md`, references to missing ids, forbidden progress states, a segment that differs between `BRAND.md` and `PROGRESS.md`, unknown status values, and approvals without an approver or date.
 - Client questionnaire and client confirmation report templates in plain language.
 - Seventeen behaviour scenarios in `evals/`, written with synthetic material.
 - Claude Code plugin manifest and marketplace file.

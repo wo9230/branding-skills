@@ -87,35 +87,57 @@ def check_headers(headers: dict[str, dict[str, str]], segments: set[str]) -> lis
         segment = fm.get("segment", "")
         if name in ("BRAND.md", "PROGRESS.md") and segment and segment not in segments:
             errors.append(f"{name}: unknown segment '{segment}'")
+
+    # Until stage 0 settles the client type one side may still be unknown; that is not a mismatch.
+    brand_segment = headers["BRAND.md"].get("segment", "")
+    progress_segment = headers.get("PROGRESS.md", {}).get("segment", "")
+    settled = {brand_segment, progress_segment} - {"", brandlib.UNKNOWN_SEGMENT}
+    if brand_segment and progress_segment and len(settled) == 2:
+        errors.append(
+            f"PROGRESS.md: segment '{progress_segment}' does not match BRAND.md '{brand_segment}'"
+        )
     return errors
 
 
 def check_versions(headers: dict[str, dict[str, str]]) -> tuple[list[str], list[str]]:
+    """Compare the version each derived file was built from with its source's current version."""
     errors: list[str] = []
     warnings: list[str] = []
-    current = headers["BRAND.md"].get("version", "")
-    try:
-        current_tuple = brandlib.version_tuple(current) if current else None
-    except ValueError:
-        errors.append(f"BRAND.md: invalid version '{current}'")
-        current_tuple = None
-    for name in DERIVED_FILES:
-        if name not in headers:
-            continue
-        built_from = headers[name].get("foundation_version", "")
+
+    def current_version(source: str) -> tuple[str, tuple[int, ...] | None]:
+        value = headers.get(source, {}).get("version", "")
+        try:
+            return value, brandlib.version_tuple(value) if value else None
+        except ValueError:
+            errors.append(f"{source}: invalid version '{value}'")
+            return value, None
+
+    def compare(name: str, field: str, source: str, current: tuple[str, tuple[int, ...] | None]):
+        built_from = headers[name].get(field, "")
         if not built_from:
-            if name == "MESSAGING.md":
+            if (name, field) == ("MESSAGING.md", "foundation_version"):
                 warnings.append(f"{name}: no foundation_version, cannot tell whether it is stale")
-            continue
+            return
         try:
             built_tuple = brandlib.version_tuple(built_from)
         except ValueError:
             errors.append(f"{name}: invalid version '{built_from}'")
-            continue
-        if current_tuple is not None and is_older(built_tuple, current_tuple):
+            return
+        if current[1] is not None and is_older(built_tuple, current[1]):
             warnings.append(
-                f"{name}: stale (generated from BRAND.md {built_from}, current {current})"
+                f"{name}: stale (generated from {source} {built_from}, current {current[0]})"
             )
+
+    brand = current_version("BRAND.md")
+    for name in DERIVED_FILES:
+        if name in headers:
+            compare(name, "foundation_version", "BRAND.md", brand)
+
+    # COMPANY.md and SITE-BRIEF.md also record the MESSAGING.md version they were built from.
+    messaging = current_version("MESSAGING.md") if "MESSAGING.md" in headers else ("", None)
+    for name in ("COMPANY.md", "SITE-BRIEF.md"):
+        if name in headers:
+            compare(name, "messaging_version", "MESSAGING.md", messaging)
     return errors, warnings
 
 
@@ -264,6 +286,10 @@ def check_project(project: Path, repo_root: Path) -> tuple[list[str], list[str],
         errors += check_progress(rows, headers["PROGRESS.md"])
         errors += check_gates(headers["BRAND.md"].get("record_status", ""), rows)
     is_v2 = headers["BRAND.md"].get("schema") == V2_SCHEMA
+    record_status = headers["BRAND.md"].get("record_status", "")
+    if record_status and record_status not in brandlib.RECORD_STATUSES:
+        problem = f"BRAND.md: invalid record_status '{record_status}'"
+        (errors if is_v2 else warnings).append(problem)
     decision_errors, decision_warnings = check_decisions(brand_text, is_v2, evidence_ids)
     errors += decision_errors
     warnings += decision_warnings
