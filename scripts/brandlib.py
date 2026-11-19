@@ -31,6 +31,7 @@ STAGE_NAMES = {
 STAGE_STATUSES = ("pending", "in-progress", "awaiting-evidence", "done", "not-selected")
 STAGE_STATUS_PREFIXES = ("deferred: ", "skipped: ")
 
+DECISION_STATUSES = ("candidate", "approved", "rejected", "superseded")
 FORMED_BY = ("client-original", "ai-refined", "co-edited")
 NEW_DECISION_PREFIXES = (
     "DEC-DIAGNOSIS",
@@ -93,7 +94,7 @@ def _unquote(value: str) -> str:
 
 def parse_frontmatter(text: str) -> dict[str, str]:
     """Return the flat ``key: value`` pairs of a leading YAML frontmatter block."""
-    match = FRONTMATTER.match(text)
+    match = FRONTMATTER.match(text.lstrip("\ufeff"))
     if not match:
         return {}
     values: dict[str, str] = {}

@@ -22,9 +22,11 @@ def derived_at(version: str) -> dict[str, list[tuple[str, str]]]:
 
 
 class CheckBrandProjectTests(unittest.TestCase):
-    def check(self, **kwargs):
+    def check(self, mutate=None, **kwargs):
         with tempfile.TemporaryDirectory() as temporary_root:
             project = make_project(Path(temporary_root) / "客户 项目", **kwargs)
+            if mutate:
+                mutate(project)
             return run_script("check_brand_project.py", project)
 
     def assert_error(self, message: str, **kwargs) -> None:
@@ -231,6 +233,102 @@ class CheckBrandProjectTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn("unknown segment 'pet-food'", result.stdout)
         self.assertIn("COMPANY.md: unknown reference CLM-777", result.stdout)
+
+    def test_decision_status_must_be_a_bare_known_value(self) -> None:
+        # Found in the final review: a decorated or translated status slipped past
+        # the "approved needs an approver and a date" check.
+        for bad in ("已批准", "Approved", "`approved`", "approved（经操作者转述）", "agreed"):
+            self.assert_error(
+                f"BRAND.md: invalid decision_status '{bad}' on DEC-POSITIONING-001",
+                edits={
+                    "BRAND.md": [("| approved | fictional-owner | 2025-01-08 |", f"| {bad} | | |")]
+                },
+            )
+
+    def test_v1_record_with_unknown_decision_status_only_warns(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_root:
+            project = Path(temporary_root) / "legacy"
+            project.mkdir()
+            text = V1_BRAND_TEXT.replace("| approved | fictional-owner |", "| 已批准 | fictional-owner |")
+            self.assertNotEqual(text, V1_BRAND_TEXT)
+            (project / "BRAND.md").write_text(text, encoding="utf-8")
+            result = run_script("check_brand_project.py", project)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn(
+                "- WARN: BRAND.md: invalid decision_status '已批准' on DEC-POSITIONING-001",
+                result.stdout,
+            )
+
+    def test_duplicate_stage_rows_fail(self) -> None:
+        # Found in the final review: the last duplicate row won and hid a skipped gate.
+        self.assert_error(
+            "PROGRESS.md: duplicate stage 4",
+            edits={
+                "PROGRESS.md": [
+                    (
+                        "| 4 | 诊断与定位 | done | | |\n",
+                        "| 4 | 诊断与定位 | skipped: 客户赶时间 | | |\n| 4 | 诊断与定位 | done | | |\n",
+                    )
+                ]
+            },
+        )
+
+    def test_only_the_stage_table_is_read(self) -> None:
+        result = self.check(
+            edits={
+                "PROGRESS.md": [
+                    (
+                        "## 会话记录\n",
+                        "## 会话记录\n\n| stage | status |\n|---|---|\n| 4 | skipped: 备注里的旧表 |\n",
+                    )
+                ]
+            }
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("0 warnings", result.stdout)
+
+    def test_utf8_bom_is_accepted(self) -> None:
+        def add_bom(project: Path) -> None:
+            for name in ("BRAND.md", "PROGRESS.md", "COMPANY.md"):
+                path = project / name
+                path.write_bytes(b"\xef\xbb\xbf" + path.read_bytes())
+
+        result = self.check(mutate=add_bom)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("PROJECT CHECK PASSED: 5 files checked, 0 warnings", result.stdout)
+
+    def test_non_utf8_file_is_reported_not_crashed(self) -> None:
+        def to_gbk(name: str):
+            def mutate(project: Path) -> None:
+                path = project / name
+                path.write_bytes(path.read_text(encoding="utf-8").encode("gbk"))
+
+            return mutate
+
+        for name in ("COMPANY.md", "BRAND.md"):
+            result = self.check(mutate=to_gbk(name))
+            self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+            self.assertIn(f"- ERROR: {name}: not UTF-8", result.stdout)
+            self.assertNotIn("Traceback", result.stderr)
+
+    def test_approved_record_requires_passed_gates(self) -> None:
+        approved = [("record_status: working", "record_status: approved")]
+        self.assert_error(
+            "BRAND.md: record_status is 'approved' but gate stage 7 is 'deferred: 等客户回复'",
+            edits={
+                "BRAND.md": approved,
+                "PROGRESS.md": [("| 7 | 汇总确认 | done", "| 7 | 汇总确认 | deferred: 等客户回复")],
+            },
+        )
+        result = self.check(edits={"BRAND.md": approved})
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_messaging_without_foundation_version_only_warns(self) -> None:
+        # Older MESSAGING.md files leave this empty; that must not fail a legacy project.
+        self.assert_warning(
+            "MESSAGING.md: no foundation_version, cannot tell whether it is stale",
+            edits={"MESSAGING.md": [("foundation_version: 0.3", 'foundation_version: ""')]},
+        )
 
     def test_rejects_a_path_that_is_not_a_directory(self) -> None:
         result = run_script("check_brand_project.py", Path(tempfile.gettempdir()) / "no-such-project-dir")

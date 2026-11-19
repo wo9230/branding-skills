@@ -9,6 +9,7 @@ approver or date. It never writes to the project.
 from __future__ import annotations
 
 import argparse
+import re
 from pathlib import Path
 
 import brandlib
@@ -19,7 +20,9 @@ DERIVED_FILES = ("MESSAGING.md", "COMPANY.md", "SITE-BRIEF.md")
 REQUIRED_FIELDS = {
     "BRAND.md": ("schema", "brand_id", "record_status", "version"),
     "PROGRESS.md": ("schema", "brand_id", "segment", "current_stage"),
-    "MESSAGING.md": ("schema", "brand_id", "foundation_version"),
+    # MESSAGING.md predates this check; older files leave foundation_version empty,
+    # so its absence is a warning (see check_versions), not a missing field.
+    "MESSAGING.md": ("schema", "brand_id"),
     "COMPANY.md": ("schema", "brand_id", "foundation_version", "generated"),
     "SITE-BRIEF.md": (
         "schema",
@@ -30,6 +33,23 @@ REQUIRED_FIELDS = {
         "primary_conversion",
     ),
 }
+STAGE_SECTION = re.compile(r"^## 阶段[^\n]*\n(?P<body>.*?)(?=^## |\Z)", re.S | re.M)
+
+
+def read_project_files(project: Path) -> tuple[dict[str, str], list[str]]:
+    """Read the known project files; return their text and the names that are not UTF-8."""
+    texts: dict[str, str] = {}
+    unreadable: list[str] = []
+    for name in brandlib.SCHEMAS:
+        path = project / name
+        if not path.is_file():
+            continue
+        try:
+            # utf-8-sig drops the byte-order mark some Windows editors add.
+            texts[name] = path.read_text(encoding="utf-8-sig")
+        except UnicodeDecodeError:
+            unreadable.append(name)
+    return texts, unreadable
 
 
 def defined_ids(text: str, id_columns: tuple[str, ...]) -> set[str]:
@@ -80,8 +100,12 @@ def check_versions(headers: dict[str, dict[str, str]]) -> tuple[list[str], list[
         errors.append(f"BRAND.md: invalid version '{current}'")
         current_tuple = None
     for name in DERIVED_FILES:
-        built_from = headers.get(name, {}).get("foundation_version", "")
+        if name not in headers:
+            continue
+        built_from = headers[name].get("foundation_version", "")
         if not built_from:
+            if name == "MESSAGING.md":
+                warnings.append(f"{name}: no foundation_version, cannot tell whether it is stale")
             continue
         try:
             built_tuple = brandlib.version_tuple(built_from)
@@ -109,7 +133,27 @@ def check_references(texts: dict[str, str], brand_ids: set[str]) -> list[str]:
     return errors
 
 
-def check_progress(text: str, header: dict[str, str]) -> list[str]:
+def read_stage_rows(text: str) -> tuple[dict[str, str], list[str]]:
+    """Return ``{stage: status}`` from the stage table and an error per duplicated stage.
+
+    Only the table under the "## 阶段" heading counts, so a table elsewhere in the
+    file cannot override it. The first row for a stage is the one that is checked.
+    """
+    section = STAGE_SECTION.search(text)
+    body = section.group("body") if section else text
+    statuses: dict[str, str] = {}
+    duplicates: list[str] = []
+    for row in brandlib.iter_table_rows(body, ["stage", "status"]):
+        stage = row["stage"]
+        if stage in statuses:
+            if stage not in duplicates:
+                duplicates.append(stage)
+        else:
+            statuses[stage] = row["status"]
+    return statuses, [f"PROGRESS.md: duplicate stage {stage}" for stage in duplicates]
+
+
+def check_progress(rows: dict[str, str], header: dict[str, str]) -> list[str]:
     errors: list[str] = []
     modules = brandlib.parse_inline_list(header.get("modules", ""))
     errors += [
@@ -117,9 +161,6 @@ def check_progress(text: str, header: dict[str, str]) -> list[str]:
         for module in modules
         if module not in brandlib.MODULE_STAGES
     ]
-    rows = {
-        row["stage"]: row["status"] for row in brandlib.iter_table_rows(text, ["stage", "status"])
-    }
     stage_module = {
         stage: module for module, stages in brandlib.MODULE_STAGES.items() for stage in stages
     }
@@ -148,12 +189,31 @@ def check_progress(text: str, header: dict[str, str]) -> list[str]:
     return errors
 
 
+def check_gates(record_status: str, rows: dict[str, str]) -> list[str]:
+    """An approved record requires every gate stage to be done."""
+    if record_status != "approved":
+        return []
+    return [
+        f"BRAND.md: record_status is 'approved' but gate stage {gate} is '{rows[gate]}'"
+        for gate in brandlib.GATE_STAGES
+        if gate in rows and rows[gate] != "done"
+    ]
+
+
 def check_decisions(text: str, is_v2: bool, evidence_ids: set[str]) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
     for row in brandlib.iter_table_rows(text, ["Decision ID", "decision_status"]):
         decision = row["Decision ID"]
-        approved = row["decision_status"] == "approved"
+        if not decision:
+            continue
+        status = row["decision_status"]
+        if status not in brandlib.DECISION_STATUSES:
+            # A decorated or translated status would slip past the approval checks below.
+            problem = f"BRAND.md: invalid decision_status '{status}' on {decision}"
+            (errors if is_v2 else warnings).append(problem)
+            continue
+        approved = status == "approved"
         if approved and not (row.get("owner") and row.get("date")):
             errors.append(f"BRAND.md: approved decision {decision} lacks owner or date")
         if not is_v2:
@@ -174,13 +234,13 @@ def check_decisions(text: str, is_v2: bool, evidence_ids: set[str]) -> tuple[lis
 
 def check_project(project: Path, repo_root: Path) -> tuple[list[str], list[str], int]:
     """Return ``(errors, warnings, files_checked)`` for one client project directory."""
-    texts = {
-        name: (project / name).read_text(encoding="utf-8")
-        for name in brandlib.SCHEMAS
-        if (project / name).is_file()
-    }
+    texts, unreadable = read_project_files(project)
+    checked = len(texts) + len(unreadable)
+    errors = [f"{name}: not UTF-8" for name in unreadable]
     if "BRAND.md" not in texts:
-        return ["missing BRAND.md"], [], len(texts)
+        if "BRAND.md" not in unreadable:
+            errors.append("missing BRAND.md")
+        return errors, [], checked
 
     headers = {name: brandlib.parse_frontmatter(text) for name, text in texts.items()}
     segments = {
@@ -192,12 +252,15 @@ def check_project(project: Path, repo_root: Path) -> tuple[list[str], list[str],
     evidence_ids = defined_ids(brand_text, ("Claim ID", "Source ID"))
     brand_ids = evidence_ids | defined_ids(brand_text, ("Decision ID",))
 
-    errors = check_headers(headers, segments)
+    errors += check_headers(headers, segments)
     version_errors, warnings = check_versions(headers)
     errors += version_errors
     errors += check_references(texts, brand_ids)
     if "PROGRESS.md" in texts:
-        errors += check_progress(texts["PROGRESS.md"], headers["PROGRESS.md"])
+        rows, duplicate_errors = read_stage_rows(texts["PROGRESS.md"])
+        errors += duplicate_errors
+        errors += check_progress(rows, headers["PROGRESS.md"])
+        errors += check_gates(headers["BRAND.md"].get("record_status", ""), rows)
     is_v2 = headers["BRAND.md"].get("schema") == V2_SCHEMA
     decision_errors, decision_warnings = check_decisions(brand_text, is_v2, evidence_ids)
     errors += decision_errors
@@ -207,7 +270,7 @@ def check_project(project: Path, repo_root: Path) -> tuple[list[str], list[str],
         modules = brandlib.parse_inline_list(headers["PROGRESS.md"].get("modules", ""))
         if "website" not in modules:
             warnings.append("SITE-BRIEF.md exists but the website module is not selected")
-    return errors, warnings, len(texts)
+    return errors, warnings, checked
 
 
 def main() -> int:
