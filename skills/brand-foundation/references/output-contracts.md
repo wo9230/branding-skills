@@ -140,7 +140,7 @@ v2 的决策表固定为九列，表头照写：
 
 - `decision_status` 一列只写 `candidate`、`approved`、`rejected`、`superseded` 之一，不加标签或说明；正文里的 `[候选决策]`、`[已批准决策]` 由这一列推出。
 - 决策表只登记已经有人提出的候选或决定。还没人提出的事项不占行，写进第 6 组的未知。
-- `formed_by` 记这条表述是怎样形成的：`client-original`（客户原话直接采用）、`ai-refined`（AI 的优化稿经客户确认）、`co-edited`（客户在优化稿上改过后确认）。`origin_ref` 填原话所在的 Source ID 或 Claim ID。做法见 [refinement.md](refinement.md)。
+- `formed_by` 记这条表述的措辞从哪里来：`client-original`（客户自己的原话）、`ai-refined`（AI 写的优化稿）、`co-edited`（客户在优化稿上改过）。它和是否批准无关，是否批准只看 `decision_status`。`origin_ref` 填原话所在的 Source ID 或 Claim ID。做法见 [refinement.md](refinement.md)。
 - 这两列对判断与表述类的决策必填，即前缀为 `DEC-DIAGNOSIS`、`DEC-POLICY`、`DEC-POSITIONING`、`DEC-AUDIENCE`、`DEC-MESSAGE`、`DEC-VOICE` 的行；其他决策可以留空。
 - v1 档案的七列决策表照样可读，升级到 v2 时在行尾补两列，旧行不知道就留空。
 

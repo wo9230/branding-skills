@@ -63,12 +63,13 @@
 - 原话：登记进来源表，得到 `SRC-…` 编号；内容按 `[用户自述]` 使用。
 - 定稿或候选：写入第 4 组决策表的一行。`formed_by` 填形成方式，`origin_ref` 填原话的来源编号。
 
-| `formed_by` | 含义 |
+| `formed_by` | 这句话的措辞从哪里来 |
 |---|---|
-| `client-original` | 客户原话直接采用，包括客户坚持保留原话 |
-| `ai-refined` | AI 的优化稿经客户确认 |
-| `co-edited` | 客户在优化稿上改过后确认 |
+| `client-original` | 客户自己的原话 |
+| `ai-refined` | AI 写的优化稿 |
+| `co-edited` | 客户在 AI 的优化稿上改过 |
 
-- 被客户否掉的优化稿各记一行，`decision_status` 为 `rejected`，`reason` 写客户的理由，免得以后重复提出。
+- `formed_by` 只记措辞的来历，和是否批准无关；是否批准看 `decision_status`。客户采用的优化稿是 `ai-refined` 加 `approved`；客户坚持保留的原话是 `client-original` 加 `approved`。
+- 被客户否掉的优化稿各记一行：`formed_by` 仍是 `ai-refined`，`decision_status` 为 `rejected`，`reason` 写客户给的理由（没给就写 `[unknown]`），免得以后重复提出。
 - 保留意见：客户保留原话而 AI 认为它没过某条标准时，在第 6 组"AI 的保留意见"下记一行：对应的 Decision ID、哪条标准没过、日期。同一条不记第二次。
 - 变更记录写明"AI 优化，客户确认"以及审批人和日期。

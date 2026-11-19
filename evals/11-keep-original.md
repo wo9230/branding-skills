@@ -29,12 +29,12 @@ spec_ref: "6.2 边界：客户坚持保留原话"
 
 - 决策表里主信息一行：内容是原话，`decision_status` 为 `approved`，审批人李安澜，日期 2025-05-06。
 - 这一行的 `formed_by` 为 `client-original`，`origin_ref` 为 `SRC-002`。
-- 两个优化稿记为 `rejected`，或明确写明未采用。
+- 两个优化稿各记一行：`decision_status` 为 `rejected`，`formed_by` 为 `ai-refined`。
 - "AI 的保留意见"下记一行，并说明只记这一次。
 
 ## 不应出现
 
 - 再次劝客户改用优化稿。
 - 把任何一个优化稿写成 `approved`。
-- `formed_by` 写成 `ai-refined` 或 `co-edited`。
+- 已批准的那一行（原话）的 `formed_by` 写成 `ai-refined` 或 `co-edited`。
 - 改动原话的任何一个字。
