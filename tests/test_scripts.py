@@ -8,6 +8,8 @@ from pathlib import Path
 
 from helpers import PACK_OK, make_segments, make_skill_tree, run_script, write
 
+import brandlib
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CREATE_SCRIPT = REPO_ROOT / "scripts" / "create_brand_project.py"
@@ -45,6 +47,105 @@ class CreateBrandProjectTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("outside the branding-skills repository", result.stderr)
         self.assertFalse(destination.exists())
+
+    def create(self, destination: Path, *args: str):
+        return run_script("create_brand_project.py", destination, *args)
+
+    def progress(self, destination: Path):
+        text = (destination / "PROGRESS.md").read_text(encoding="utf-8")
+        rows = {
+            row["stage"]: row["status"]
+            for row in brandlib.iter_table_rows(text, ["stage", "status"])
+        }
+        return brandlib.parse_frontmatter(text), rows
+
+    def test_creates_journey_files_with_core_only_defaults(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_root:
+            destination = Path(temporary_root) / "sample-brand"
+            self.assertEqual(self.create(destination).returncode, 0)
+            self.assertTrue((destination / "AGENTS.md").is_file())
+            fm, rows = self.progress(destination)
+            self.assertEqual(fm["segment"], "unknown")
+            self.assertEqual(brandlib.parse_inline_list(fm["modules"]), [])
+            self.assertEqual([rows[s] for s in ("E1", "E2", "W1")], ["not-selected"] * 3)
+            questionnaire = (destination / "intake" / "CLIENT-QUESTIONNAIRE.md").read_text(
+                encoding="utf-8"
+            )
+            self.assertIn("<!-- part:core -->", questionnaire)
+            self.assertNotIn("part:execution", questionnaire)
+            self.assertNotIn("part:website", questionnaire)
+            self.assertNotIn("<!-- segment:", questionnaire)
+            readme = (destination / "README.md").read_text(encoding="utf-8")
+            for token in ("PROGRESS.md", "AGENTS.md", "CLIENT-QUESTIONNAIRE.md", "$brand-journey"):
+                self.assertIn(token, readme, token)
+
+    def test_segment_and_modules_shape_progress_and_questionnaire(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_root:
+            destination = Path(temporary_root) / "sample-brand"
+            result = self.create(destination, "--segment", "export-b2b", "--modules", "execution")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            fm, rows = self.progress(destination)
+            self.assertEqual(fm["segment"], "export-b2b")
+            self.assertEqual(brandlib.parse_inline_list(fm["modules"]), ["execution"])
+            self.assertEqual(
+                [rows[s] for s in ("E1", "E2", "W1")], ["pending", "pending", "not-selected"]
+            )
+            self.assertEqual(rows["4"], "pending")
+            text = (destination / "intake" / "CLIENT-QUESTIONNAIRE.md").read_text(encoding="utf-8")
+            order = [
+                text.find(mark)
+                for mark in (
+                    "<!-- part:core -->",
+                    "<!-- segment:export-b2b part:core -->",
+                    "<!-- part:execution -->",
+                    "<!-- segment:export-b2b part:execution -->",
+                )
+            ]
+            self.assertTrue(min(order) >= 0 and order == sorted(order), order)
+            self.assertNotIn("part:website", text)
+            self.assertIn("你们的产品主要卖到哪些国家或地区？", text)
+            self.assertNotIn("希望网站用哪些语言？", text)
+
+    def test_generic_segment_adds_no_pack_questions(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_root:
+            destination = Path(temporary_root) / "sample-brand"
+            result = self.create(
+                destination, "--segment", "generic", "--modules", "website", "execution"
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            fm, rows = self.progress(destination)
+            self.assertEqual(fm["segment"], "generic")
+            self.assertEqual(brandlib.parse_inline_list(fm["modules"]), ["execution", "website"])
+            self.assertEqual([rows[s] for s in ("E1", "E2", "W1")], ["pending"] * 3)
+            text = (destination / "intake" / "CLIENT-QUESTIONNAIRE.md").read_text(encoding="utf-8")
+            self.assertLess(text.find("<!-- part:execution -->"), text.find("<!-- part:website -->"))
+            self.assertNotIn("<!-- segment:", text)
+
+    def test_rejects_unknown_segment_without_creating_anything(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_root:
+            destination = Path(temporary_root) / "sample-brand"
+            result = self.create(destination, "--segment", "pet-food")
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("unknown segment 'pet-food'", result.stderr)
+            self.assertIn("domestic-b2b, dtc-ecommerce, export-b2b, generic", result.stderr)
+            self.assertFalse(destination.exists())
+
+    def test_rejects_unknown_module(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_root:
+            destination = Path(temporary_root) / "sample-brand"
+            result = self.create(destination, "--modules", "ads")
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("invalid choice", result.stderr)
+            self.assertFalse(destination.exists())
+
+    def test_creates_project_in_non_ascii_path_with_spaces(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_root:
+            destination = Path(temporary_root) / "客户 项目" / "青岛 样例"
+            result = self.create(destination, "--segment", "dtc-ecommerce", "--modules", "website")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertTrue((destination / "PROGRESS.md").is_file())
+            text = (destination / "intake" / "CLIENT-QUESTIONNAIRE.md").read_text(encoding="utf-8")
+            self.assertIn("<!-- segment:dtc-ecommerce part:website -->", text)
 
 
 class DemoTests(unittest.TestCase):
