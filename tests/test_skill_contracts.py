@@ -278,6 +278,26 @@ class HandoffContractTests(unittest.TestCase):
         ):
             self.assertIn(token, text, token)
 
+    def test_one_agents_file_serves_claude_code_and_codex(self) -> None:
+        contract = repo_text(HANDOFF + "references/output-contracts.md")
+        for token in ("Codex", "Claude Code", "@AGENTS.md"):
+            self.assertIn(token, contract, token)
+
+    def test_claude_md_import_sits_beside_the_project_agents_file(self) -> None:
+        contract = repo_text(HANDOFF + "references/output-contracts.md")
+        for token in (
+            "`.claude/CLAUDE.md`",
+            "`CLAUDE.local.md`",
+            "`~/.claude/CLAUDE.md`",
+            "和 `AGENTS.md` 同一个目录",
+            "不写进上级目录的文件",
+        ):
+            self.assertIn(token, contract, token)
+        self.assertNotIn("在那份 `CLAUDE.md` 里加一行", contract)
+        entry = repo_text(HANDOFF + "SKILL.md")
+        for token in ("`.claude/CLAUDE.md`", "`CLAUDE.local.md`", "beside the project's `AGENTS.md`"):
+            self.assertIn(token, entry, token)
+
 
 if __name__ == "__main__":
     unittest.main()

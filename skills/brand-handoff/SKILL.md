@@ -44,6 +44,8 @@ Follow [references/site-brief-method.md](references/site-brief-method.md) and st
 
 Use [assets/AGENTS-TEMPLATE.md](assets/AGENTS-TEMPLATE.md) for the client project root. Offer [assets/AGENTS-SNIPPET.md](assets/AGENTS-SNIPPET.md) when the website lives in a separate code repository.
 
+One `AGENTS.md` serves both Codex and Claude Code; do not write a second rules file. Claude Code skips `AGENTS.md` when a `CLAUDE.md`, `.claude/CLAUDE.md`, or `CLAUDE.local.md` exists in the project or any directory above it: tell the user which file, and follow the `AGENTS.md` section of [references/output-contracts.md](references/output-contracts.md). The `@AGENTS.md` import goes in a `CLAUDE.md` beside the project's `AGENTS.md`, never in a parent directory's file.
+
 ## Hard rules
 
 - Do not invent or strengthen anything: no new facts, numbers, customers, proof, or promises.
