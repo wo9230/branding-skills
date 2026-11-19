@@ -40,6 +40,7 @@ Use [references/output-contracts.md](references/output-contracts.md) and adapt [
 - `output/brand-system.md`
 - `output/brand-board.html`
 - `output/brand-variables.css` only when implementation handoff needs it
+- `output/DESIGN.md` in committed mode, when a site-building agent will consume the direction; in concept exploration, omit it or mark the whole file as concept
 
 Open the HTML locally and inspect desktop and mobile widths. Verify status labels, message provenance, hierarchy, overflow, contrast claims, concept labels, resource loading, and that no build step is required.
 

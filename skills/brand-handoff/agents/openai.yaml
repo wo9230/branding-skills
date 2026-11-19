@@ -1,0 +1,6 @@
+interface:
+  display_name: "品牌档案交接"
+  short_description: "把品牌档案整理成 AI 速读文件和建站交接文件"
+  default_prompt: "Use $brand-handoff to generate COMPANY.md, and SITE-BRIEF.md when a website is in scope, from this project's BRAND.md."
+policy:
+  allow_implicit_invocation: true

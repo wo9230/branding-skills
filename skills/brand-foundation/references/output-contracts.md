@@ -12,12 +12,14 @@
 
 ```yaml
 ---
-schema: brand-foundation/v1
+schema: brand-foundation/v2
 brand_id: ""
 brand_name: ""
 subject: unknown
 market_model: unknown
 stage: unknown
+segment: unknown
+operator: ""
 record_status: in-progress
 version: 0.1
 updated: YYYY-MM-DD
@@ -39,12 +41,32 @@ allowed_use: internal
 - `stage`: `idea | prelaunch | active | rebrand | unknown`
 - `record_status`: `in-progress | working | approved | archived`
 - `allowed_use`: `internal | client-confidential | public-approved | restricted`
+- `segment`: 细分包登记表里的标识（首批为 `export-b2b | domestic-b2b | dtc-ecommerce`），或 `generic`（哪一类都不像），或 `unknown`（还没判断）。登记表在 `$brand-journey` 的 `references/segments/INDEX.md`。
+- `operator`: 主持建档的一方，例如替客户建站的团队；没有就留空。操作者不是审批人，不能替 owner 批准决策。
 
 不要为了填满 frontmatter 猜测。未知就保留 `unknown` 或空数组。
 
+### 版本号
+
+`version` 是用点分开的整数，例如 `0.3`、`0.10`、`1.2`。
+
+- 比较时按数字比较，一段一段地比：`0.10` 高于 `0.9`，`1` 等于 `1.0`。不按文本比较，也不当成小数。
+- 每次改动事实或决策后，把最后一段加一；获得整体批准或做了大改时可以进一位。只改错别字不必升。
+- 最后一段到两位数时加上引号，写成 `version: "0.10"`。不加引号，一般的 YAML 工具会把它读成小数 0.1。
+- 派生文件里的 `foundation_version`、`messaging_version` 照抄来源文件的写法。它低于 `BRAND.md` 当前的 `version`，这份派生文件就过期了。
+
+### v1 与 v2
+
+`brand-foundation/v2` 是 v1 的超集：七组结构不变，只在文件头和组内增加字段。
+
+- `schema: brand-foundation/v1` 的档案可以直接读取和使用，不要求先升级。
+- 只有本次任务需要写入 v2 才有的内容时才升级：把 `schema` 改为 v2，补上 `segment` 与 `operator`，并在变更记录里写明升级日期和原因。
+- 升级时不重排、不改写未受影响的内容，已有的 Decision ID、Claim ID 原样保留。
+- v2 新增的内容没人回答时写 `[unknown]`；属于本次没做的可选模块时写 `[本次未做]`，不要留空，也不要推测。
+
 ### 工作簿转换
 
-`BRAND-WORKBOOK.md` 使用 `brand-foundation-workbook/v1`，并声明 `target_schema: brand-foundation/v1`。转换时：
+`BRAND-WORKBOOK.md` 使用 `brand-foundation-workbook/v1`，并声明 `target_schema: brand-foundation/v2`。旧工作簿若声明 `target_schema: brand-foundation/v1`，照样转换，结果按 v1 写，除非本次任务需要 v2 字段。转换时：
 
 - 除 `record_status` 外，同名 frontmatter 原样映射，空值不补造；转换后依据本页生命周期重新判断 `record_status`，不能机械沿用工作簿初始值；
 - 工作簿回答按下方七组归档，原始回答仍只是输入；
@@ -67,9 +89,9 @@ allowed_use: internal
 从工作簿、访谈或散乱材料新建完整 `BRAND.md` 时，以下字段必须按同一顺序出现；来源没有回答就写 `[unknown]`，不能因输入形式不同而省略。审计/更新既有档案时不要为满足此表重排未受影响内容。
 
 1. **范围与治理**：current task、brand object、intended use、owner、approvers、permission boundary；
-2. **当前现实**：actual offering、commercial state、fit conditions、exclusion conditions、promise limits；
-3. **客户情境**：priority audience、trigger/job、alternatives、buying roles、choice/loss evidence；
-4. **战略选择**：固定决策表，包含 Decision ID、choice、decision_status、owner、date、reason、scope；
+2. **当前现实**：actual offering、commercial state、fit conditions、exclusion conditions、promise limits；v2 另加 business model and revenue mix、product architecture、current price rules and terms、current channels and customer sources、sales follow-up、people and budget；
+3. **客户情境**：priority audience、trigger/job、alternatives、buying roles、choice/loss evidence；v2 另加 competition and alternatives table；
+4. **战略选择**：v2 先写 diagnosis、guiding policy、positioning five elements，再接固定决策表，包含 Decision ID、choice、decision_status、owner、date、reason、scope，v2 另加 formed_by、origin_ref；
 5. **身份、声音与信息**：origin/principles、voice_basis、voice direction、voice samples、main message、supporting points、intended action、public claims；
 6. **证据、冲突与未知**：source register、claim register、conflicts、stale material、research gaps；
 7. **会话状态与变更记录**：current goal、interaction mode、interaction pace、session status、materials read、decisions recorded、highest-priority gap、next action、change log。
@@ -86,15 +108,67 @@ allowed_use: internal
 
 实际存在的产品/服务、交付内容、适配条件、排除条件、承诺限制与当前阶段。
 
+v2 在本组另记经营现状，全部是事实，各带 `fact_status`：
+
+- 业务模式与收入构成；
+- 产品架构：有哪些产品线，哪些是主推品；
+- **现行**价格规则与交易条款，注明生效日期；
+- 现有渠道与客户来源；
+- 销售与跟进方式；
+- 可投入的人力与预算。
+
+业务模式、产品线和客户来源的基本事实任何时候都记。其余细项由落地模块（见 [strategy-and-execution.md](strategy-and-execution.md)）补全；本次没做落地模块时，细项写 `[本次未做]`。
+
 ### 3. 客户情境
 
 优先受众、触发事件/任务、替代方案、选择或流失证据。B2B/DTC/个人分支只在适用时加入。
+
+v2 在本组用一张竞争与替代表记录客户不选我们时的办法，三层都要有：
+
+| 层级 | 替代方案 | 它的定位 | 真实优势 | 对我们的威胁 | 来源与查询日期 |
+|---|---|---|---|---|---|
+
+层级取"直接"（同类对手）、"间接"（用别的办法解决同一件事）、"维持现状"（不处理或自己凑合）。"真实优势"写对方确实更强的地方，不写成贬低。对手官网只证明它这样公开表述；没有来源的行写 `[假设]`。
 
 ### 4. 战略选择
 
 候选定位、已批准定位、关键取舍、非目标。每项写 `decision_status`、owner、日期和理由。不要让候选与批准版本混排。
 
+v2 在决策表之前先写三项，方法见 [strategy-and-execution.md](strategy-and-execution.md)：
+
+- **诊断**：当前最关键的难题；
+- **方针**：主攻什么、放弃什么；
+- **定位五要素**：客户会拿来比的替代方案、我们独有的能力或特点、这些特点给客户的价值、最适合的客户、所在的品类，以及合成的一句话。
+
+三项各自对应决策表里的一行，状态以决策表为准。
+
+v2 的决策表固定为九列，表头照写：
+
+| Decision ID | choice | decision_status | owner | date | reason | scope | formed_by | origin_ref |
+|---|---|---|---|---|---|---|---|---|
+
+- `decision_status` 一列只写 `candidate`、`approved`、`rejected`、`superseded` 之一，不加标签或说明；正文里的 `[候选决策]`、`[已批准决策]` 由这一列推出。
+- `owner` 一列只写审批人的名字或代号，`date` 一列只写日期。候选还没有人拍板时，这两格留空。"经操作者转述""待确认""当面答复"这类说明不写进这三列，写在第 7 组的变更记录里，并带上对应的 Decision ID。
+- 决策表只登记已经有人提出的候选或决定。还没人提出的事项不占行，写进第 6 组的未知。
+- `formed_by` 记这条表述的措辞从哪里来：`client-original`（客户自己的原话）、`ai-refined`（AI 写的优化稿）、`co-edited`（客户在优化稿上改过）。它和是否批准无关，是否批准只看 `decision_status`。`origin_ref` 填原话所在的 Source ID 或 Claim ID；出自不止一处时都列上，用顿号隔开，例如 `SRC-001、SRC-003`，这一格只写编号。做法见 [refinement.md](refinement.md)。
+- 这两列对判断与表述类的决策必填，即前缀为 `DEC-DIAGNOSIS`、`DEC-POLICY`、`DEC-POSITIONING`、`DEC-AUDIENCE`、`DEC-MESSAGE`、`DEC-VOICE` 的行；其他决策可以留空。
+- v1 档案的七列决策表照样可读，升级到 v2 时在行尾补两列，旧行不知道就留空。
+
+事实与决策不能混：现行价格规则是事实，放第 2 组；"网站上是否公开价格、怎么展示"是决策，放本组。渠道同理：客户现在从哪来是事实，各渠道今后各管什么是决策。
+
 Decision ID 必须稳定：已有 ID 原样保留；首次创建时按语义类型使用 `DEC-SCOPE-001`、`DEC-OFFER-001`、`DEC-AUDIENCE-001`、`DEC-POSITIONING-001`、`DEC-CLAIM-001`、`DEC-VOICE-001`、`DEC-MESSAGE-001`、`DEC-VISUAL-001` 或 `DEC-OTHER-001`，同类后续递增。不要因为输入来自工作簿或访谈、表格顺序不同或重写措辞而重新编号。
+
+v2 新增七个前缀，编号规则相同：
+
+| 前缀 | 用于 | 何时产生 |
+|---|---|---|
+| `DEC-DIAGNOSIS` | 最关键的难题 | 任何时候 |
+| `DEC-POLICY` | 主攻什么、放弃什么 | 任何时候 |
+| `DEC-GOAL` | 当前周期的主要经营目标 | 任何时候 |
+| `DEC-PRICE` | 价格是否公开、怎么展示 | 只在落地模块 |
+| `DEC-CHANNEL` | 各渠道的角色与取舍 | 只在落地模块 |
+| `DEC-PROMO` | 推广主打什么、由谁持续做 | 只在落地模块 |
+| `DEC-SITE` | 网站的任务、主转化与约束 | 只在建站模块 |
 
 ### 5. 身份、声音与信息
 
@@ -108,14 +182,23 @@ Decision ID 必须稳定：已有 ID 原样保留；首次创建时按语义类�
 
 ### 6. 证据、冲突与未知
 
+来源登记用表格，字段含义见 [evidence-and-decisions.md](evidence-and-decisions.md) 的"最小来源记录"：
+
+| Source ID | source_type | location | source_date | checked_at | scope | read_scope | permission |
+|---|---|---|---|---|---|---|---|
+
 重要主张用表格：
 
 | Claim ID | 主张 | fact_status | 来源与范围 | permission | 阻塞什么 |
 |---|---|---|---|---|---|
 
+编号格式固定，其他文件和自检脚本都按它引用：Source ID 从 `SRC-001` 起，Claim ID 从 `CLM-001` 起，都是三位数字、同类递增；已有编号不重排、不复用。表头的 `Source ID`、`Claim ID` 两个列名照写，不要翻译或改写。"来源与范围"一列用 Source ID 指向来源。
+
 Claim register 只登记材料实际提出的现实主张、用户自述或待验证解释。不要把“不得声称 X”反向扩写成一个新的“X 为 unknown”主张；这类内容保留在批准的排除决定、承诺限制或禁止公开项中。这样同一输入经工作簿与访谈进入时不会因为措辞形式产生不同的虚假主张集合。
 
 另列冲突、过期资料、研究缺口和被排除的虚构/无来源内容。
+
+**AI 的保留意见**（v2）：客户审批人保留了自己的原话，而 AI 认为它没过 [refinement.md](refinement.md) 的某条质量标准时，在这个小标题下记一行：对应的 Decision ID、哪条标准没过、日期。每条决策只记一次，之后不再反复提。它是提醒，不改变决策状态。
 
 如品牌已经进入实际使用，可增加学习记录。学习记录只描述某项已批准或候选表达在指定范围内的观察结果：
 
@@ -127,6 +210,8 @@ Claim register 只登记材料实际提出的现实主张、用户自述或待�
 ### 7. 会话状态与变更记录
 
 保存当前目标、`READY/PARTIAL/RESEARCH-GAP/BLOCKED/DEFERRED` 状态、已读取材料、下一项最高优先级缺口，以及每次修改的日期、内容、理由和批准人。
+
+使用 `$brand-journey` 主持访谈时，阶段进度、下一问和会话记录记在项目根目录的 `PROGRESS.md`。本组只保留变更记录，并写一行指向 `PROGRESS.md`，不重复记流程。
 
 ## 日期报告
 

@@ -1,0 +1,19 @@
+{
+  "name": "branding-skills",
+  "description": "Guided brand positioning interviews, evidence-bound brand records, messaging, visual direction, and AI-readable handoff files for client website projects.",
+  "version": "0.2.0",
+  "author": {
+    "name": "Branding Skills Contributors"
+  },
+  "homepage": "https://github.com/wo9230/branding-skills",
+  "repository": "https://github.com/wo9230/branding-skills",
+  "license": "MIT",
+  "keywords": [
+    "branding",
+    "positioning",
+    "brand-strategy",
+    "messaging",
+    "website-brief",
+    "skills"
+  ]
+}

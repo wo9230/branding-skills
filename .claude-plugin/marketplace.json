@@ -1,0 +1,16 @@
+{
+  "name": "branding-skills",
+  "description": "Skills for guided brand positioning interviews and AI-readable brand handoff files.",
+  "owner": {
+    "name": "Branding Skills Contributors"
+  },
+  "plugins": [
+    {
+      "name": "branding-skills",
+      "description": "Guided brand positioning interviews, evidence-bound brand records, messaging, visual direction, and AI-readable handoff files for client website projects.",
+      "source": "./",
+      "category": "productivity",
+      "homepage": "https://github.com/wo9230/branding-skills"
+    }
+  ]
+}

@@ -67,7 +67,12 @@ REQUIRED_SKILLS = {
     "brand-foundation",
     "brand-expression",
     "brand-visual-board",
+    "brand-journey",
+    "brand-handoff",
 }
+
+# Directories whose files must all be marked as synthetic, with the label used in failures.
+SYNTHETIC_DIRECTORIES = (("examples", "example"), ("evals", "eval"))
 
 PATTERNS = {
     "macOS absolute user path": re.compile(r"/Users/[A-Za-z0-9._-]+/"),
@@ -158,13 +163,13 @@ def main() -> int:
             if pattern.search(text) and relative != Path("scripts/verify_release.py"):
                 failures.append(f"{label}: {relative}")
 
-    example_root = root / "examples"
-    for path in iter_text_files(example_root):
-        if path.name == "README.md":
-            continue
-        text = path.read_text(encoding="utf-8").lower()
-        if "fictional" not in text and "虚构" not in text:
-            failures.append(f"example lacks fictional marker: {path.relative_to(root)}")
+    for directory, label in SYNTHETIC_DIRECTORIES:
+        for path in iter_text_files(root / directory):
+            if path.name == "README.md":
+                continue
+            text = path.read_text(encoding="utf-8").lower()
+            if "fictional" not in text and "虚构" not in text:
+                failures.append(f"{label} lacks fictional marker: {path.relative_to(root)}")
 
     if failures:
         print("RELEASE CHECK FAILED")
