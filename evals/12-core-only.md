@@ -14,7 +14,7 @@ spec_ref: "6.1 选模块、6.3 规则 12"
 客户是虚构企业"禾丰滤材"，做工业滤芯。立项时操作者说过"这次只要定位"。`PROGRESS.md` 节选：
 
 ```text
-segment: domestic-b2b
+segment: generic
 modules: []
 current_stage: "5"
 next_question: "定位里的每个说法，各有什么记录能证明？"
