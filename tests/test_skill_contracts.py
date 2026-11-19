@@ -136,5 +136,82 @@ class SegmentPackContractTests(unittest.TestCase):
             self.assertNotRegex(text, r"\d+(\.\d+)?\s*%", name)  # no benchmark figures
 
 
+JOURNEY = "skills/brand-journey/"
+
+
+class JourneyContractTests(unittest.TestCase):
+    def test_stage_map_covers_every_stage(self) -> None:
+        text = repo_text(JOURNEY + "references/stage-map.md")
+        for stage in brandlib.REQUIRED_STAGES:
+            self.assertIn(f"## 阶段 {stage}：{brandlib.STAGE_NAMES[stage]}", text)
+        for stages in brandlib.MODULE_STAGES.values():
+            for stage in stages:
+                self.assertIn(f"## 模块 {stage}：{brandlib.STAGE_NAMES[stage]}", text)
+        for token in ("execution", "website", "必答", "加深", "做到什么算完", "增量确认"):
+            self.assertIn(token, text, token)
+
+    def test_progress_template_matches_vocabulary(self) -> None:
+        text = repo_text(JOURNEY + "assets/PROGRESS-TEMPLATE.md")
+        fm = brandlib.parse_frontmatter(text)
+        self.assertEqual(fm["schema"], "brand-journey-progress/v1")
+        self.assertEqual(fm["segment"], "unknown")
+        self.assertEqual(brandlib.parse_inline_list(fm["modules"]), [])
+        rows = {row["stage"]: row for row in brandlib.iter_table_rows(text, ["stage", "status"])}
+        optional = [stage for stages in brandlib.MODULE_STAGES.values() for stage in stages]
+        self.assertEqual(set(rows), set(brandlib.REQUIRED_STAGES) | set(optional))
+        for stage in brandlib.REQUIRED_STAGES:
+            self.assertEqual(rows[stage]["status"], "pending")
+            self.assertEqual(rows[stage]["name"], brandlib.STAGE_NAMES[stage])
+        for stage in optional:
+            self.assertEqual(rows[stage]["status"], "not-selected")
+            self.assertEqual(rows[stage]["name"], brandlib.STAGE_NAMES[stage])
+        for heading in ("## 关键决策", "## 稍后处理清单", "## 会话记录"):
+            self.assertIn(heading, text)
+
+    def test_output_contract_lists_every_status_and_report_path(self) -> None:
+        text = repo_text(JOURNEY + "references/output-contracts.md")
+        for token in (
+            *brandlib.STAGE_STATUSES,
+            "deferred: ",
+            "skipped: ",
+            "brand-journey-progress/v1",
+            "reports/YYYY-MM-DD-client-confirmation.md",
+            "保留原来的说法",
+        ):
+            self.assertIn(token, text, token)
+
+    def test_anti_drift_has_progress_lines_and_twelve_rules(self) -> None:
+        text = repo_text(JOURNEY + "references/anti-drift.md")
+        for line in (
+            "阶段 3/7 · 竞争与替代 · 第 2/5 问",
+            "落地 E1 · 产品与价格 · 第 1/4 问",
+            "建站 W1 · 网站目标与约束 · 第 1/5 问",
+        ):
+            self.assertIn(line, text)
+        numbered = [line for line in text.splitlines() if line[:1].isdigit() and ". **" in line[:8]]
+        self.assertEqual(len(numbered), 12)
+
+    def test_questionnaire_has_three_parts_in_order(self) -> None:
+        text = repo_text(JOURNEY + "assets/CLIENT-QUESTIONNAIRE.md")
+        marks = [text.find(f"<!-- part:{part} -->") for part in brandlib.PART_LABELS]
+        self.assertTrue(min(marks) > 0 and marks == sorted(marks), marks)
+
+    def test_skill_entry_names_its_collaborators(self) -> None:
+        text = repo_text(JOURNEY + "SKILL.md")
+        for token in (
+            "$brand-foundation",
+            "$brand-expression",
+            "$brand-visual-board",
+            "$brand-handoff",
+            "PROGRESS.md",
+            "references/stage-map.md",
+            "references/anti-drift.md",
+            "references/conduct-modes.md",
+            "references/output-contracts.md",
+            "references/segments/INDEX.md",
+        ):
+            self.assertIn(token, text, token)
+
+
 if __name__ == "__main__":
     unittest.main()
