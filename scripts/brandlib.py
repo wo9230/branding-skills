@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Iterable, Iterator
+from pathlib import Path
 
 
 REQUIRED_STAGES = ("0", "1", "2", "3", "4", "5", "6", "7")
@@ -55,6 +56,23 @@ SCHEMAS = {
     "SITE-BRIEF.md": ("site-brief/v1",),
     "PROGRESS.md": ("brand-journey-progress/v1",),
 }
+
+# Segment packs: one file per client type, registered in INDEX.md.
+SEGMENTS_DIR = Path("skills/brand-journey/references/segments")
+SEGMENT_HEADINGS = (
+    "识别信号",
+    "各阶段加问",
+    "价格模块",
+    "渠道模块",
+    "证明与高风险说法",
+    "网站交接模式",
+    "表达注意",
+    "问卷加问",
+)
+# Questionnaire parts and the sub-heading each uses inside a pack's section 8.
+PART_LABELS = {"core": "核心", "execution": "落地", "website": "建站"}
+GENERIC_SEGMENT = "generic"
+UNKNOWN_SEGMENT = "unknown"
 
 FRONTMATTER = re.compile(r"\A---\r?\n(?P<body>.*?)\r?\n---\r?(?:\n|\Z)", re.S)
 # Python treats CJK characters as word characters, so "\b" finds no boundary
@@ -147,3 +165,9 @@ def is_valid_stage_status(value: str) -> bool:
 def find_ids(text: str) -> set[str]:
     """Return every decision, claim, source, and copy id mentioned in the text."""
     return set(ID_PATTERN.findall(text))
+
+
+def read_segment_index(repo_root: Path) -> dict[str, str]:
+    """Return ``{segment id: file name}`` from the registry; raise FileNotFoundError if absent."""
+    text = (repo_root / SEGMENTS_DIR / "INDEX.md").read_text(encoding="utf-8")
+    return {row["segment"]: row["file"] for row in iter_table_rows(text, ["segment", "file"])}

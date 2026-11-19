@@ -108,5 +108,33 @@ class RefinementContractTests(unittest.TestCase):
         self.assertIn("references/refinement.md", repo_text(FOUNDATION + "SKILL.md"))
 
 
+SEGMENTS = "skills/brand-journey/references/segments/"
+
+
+class SegmentPackContractTests(unittest.TestCase):
+    def test_index_registers_the_three_first_packs(self) -> None:
+        self.assertEqual(
+            brandlib.read_segment_index(REPO_ROOT),
+            {
+                "export-b2b": "export-b2b.md",
+                "domestic-b2b": "domestic-b2b.md",
+                "dtc-ecommerce": "dtc-ecommerce.md",
+            },
+        )
+
+    def test_packs_cover_the_spec_difference_table(self) -> None:
+        required = {
+            "export-b2b.md": ("询盘", "起订量", "交期", "贸易条款", "样品", "展会", "认证", "出口"),
+            "domestic-b2b.md": ("线索", "方案报价", "账期", "招投标", "资质", "标杆案例"),
+            "dtc-ecommerce.md": ("下单", "促销", "运费", "退换", "质保", "达人", "复购", "评价"),
+        }
+        for name, words in required.items():
+            text = repo_text(SEGMENTS + name)
+            for word in words:
+                self.assertIn(word, text, f"{name}: {word}")
+            self.assertLessEqual(len(text.splitlines()), 160, name)
+            self.assertNotRegex(text, r"\d+(\.\d+)?\s*%", name)  # no benchmark figures
+
+
 if __name__ == "__main__":
     unittest.main()

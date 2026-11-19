@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from helpers import run_script, write
+from helpers import PACK_OK, make_segments, make_skill_tree, run_script, write
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -164,6 +164,91 @@ class VerifyReleaseTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("eval lacks fictional marker: evals/01-sample.md", result.stdout)
             self.assertNotIn("evals/README.md", result.stdout)
+
+
+class ValidateSkillsTests(unittest.TestCase):
+    def run_fixture(self, packs, index_rows=None, mutate=None):
+        with tempfile.TemporaryDirectory() as temporary_root:
+            root = make_skill_tree(Path(temporary_root))
+            make_segments(root, packs, index_rows)
+            if mutate:
+                mutate(root)
+            return run_script("validate_skills.py", root)
+
+    def test_repository_passes_with_three_packs(self) -> None:
+        result = run_script("validate_skills.py", REPO_ROOT)
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("3 segment packs", result.stdout)
+
+    def test_valid_fixture_passes(self) -> None:
+        result = self.run_fixture({"export-b2b": PACK_OK})
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("1 segment packs", result.stdout)
+
+    def test_rejects_missing_section(self) -> None:
+        broken = PACK_OK.replace("## 5. 证明与高风险说法\n", "")
+        self.assertNotEqual(broken, PACK_OK)
+        result = self.run_fixture({"export-b2b": broken})
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("export-b2b.md", result.stdout)
+        self.assertIn("证明与高风险说法", result.stdout)
+
+    def test_rejects_extra_level_two_heading(self) -> None:
+        result = self.run_fixture({"export-b2b": PACK_OK + "\n## 9. 其他\n"})
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("export-b2b.md", result.stdout)
+
+    def test_rejects_missing_questionnaire_group(self) -> None:
+        broken = PACK_OK.replace("### 建站\n", "")
+        self.assertNotEqual(broken, PACK_OK)
+        result = self.run_fixture({"export-b2b": broken})
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("section 8", result.stdout)
+
+    def test_rejects_unregistered_pack(self) -> None:
+        result = self.run_fixture(
+            {"export-b2b": PACK_OK, "extra": PACK_OK},
+            index_rows={"export-b2b": "export-b2b.md"},
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("unregistered segment pack: extra.md", result.stdout)
+
+    def test_rejects_registered_file_that_is_missing(self) -> None:
+        result = self.run_fixture(
+            {"export-b2b": PACK_OK},
+            index_rows={"export-b2b": "export-b2b.md", "pets": "pets.md"},
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("segment file missing: pets.md", result.stdout)
+
+    def test_rejects_reserved_segment_id(self) -> None:
+        result = self.run_fixture({"generic": PACK_OK})
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("reserved segment id: generic", result.stdout)
+
+    def test_rejects_segment_id_that_differs_from_file_name(self) -> None:
+        result = self.run_fixture(
+            {"export-b2b": PACK_OK}, index_rows={"overseas": "export-b2b.md"}
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("segment id must match file name: overseas", result.stdout)
+
+    def test_rejects_missing_index(self) -> None:
+        def mutate(root: Path) -> None:
+            (root / "skills/brand-journey/references/segments/INDEX.md").unlink()
+
+        result = self.run_fixture({"export-b2b": PACK_OK}, mutate=mutate)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("segments index missing", result.stdout)
+
+    def test_rejects_overlong_skill_file(self) -> None:
+        def mutate(root: Path) -> None:
+            path = root / "skills" / "brand-foundation" / "SKILL.md"
+            path.write_text(path.read_text(encoding="utf-8") + "line\n" * 130, encoding="utf-8")
+
+        result = self.run_fixture({"export-b2b": PACK_OK}, mutate=mutate)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("exceeds 120 lines", result.stdout)
 
 
 if __name__ == "__main__":
