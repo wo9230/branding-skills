@@ -46,7 +46,8 @@ Installed Skills contain methods and blank assets. Brand-specific material belon
 
 - `BRAND.md` is the only source of truth for facts and decisions.
 - `PROGRESS.md` records process only: selected modules, stage states, the next question, parked items.
-- `MESSAGING.md`, `COMPANY.md`, `SITE-BRIEF.md`, reports, and visual outputs are derived. Each records the `BRAND.md` version it was built from and never replaces it.
+- `MESSAGING.md`, `COMPANY.md`, `SITE-BRIEF.md`, and visual outputs are derived. Each records the `BRAND.md` version it was built from and never replaces it. Versions are dotted integers compared numerically, so `0.10` is newer than `0.9`.
+- Reports are dated snapshots. They carry a date rather than a version and are never read back as a source of truth.
 - A candidate, hypothesis, or unknown keeps its label in every derived file.
 
 `scripts/check_brand_project.py` reads a project and reports derived files that are stale, references to ids that do not exist, progress states the journey forbids, and approvals without an approver or date. It never writes.

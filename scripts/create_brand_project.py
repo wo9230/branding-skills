@@ -94,16 +94,28 @@ def main() -> int:
     )
     parser.add_argument(
         "--modules",
-        nargs="+",
-        choices=MODULE_ORDER,
+        action="append",
         default=[],
-        help="Optional modules to open in addition to the required stages",
+        metavar="LIST",
+        help=(
+            "Optional modules to open in addition to the required stages, comma-separated: "
+            f"{', '.join(MODULE_ORDER)}. May be repeated."
+        ),
     )
-    args = parser.parse_args()
+    # One value per flag, so the flag can sit before or after the destination.
+    args, extra = parser.parse_known_args()
+    if extra and all(value in MODULE_ORDER for value in extra):
+        parser.error("list modules with commas, for example: --modules execution,website")
+    if extra:
+        parser.error(f"unrecognized arguments: {' '.join(extra)}")
+    requested = [name.strip() for value in args.modules for name in value.split(",") if name.strip()]
+    unknown = [name for name in requested if name not in MODULE_ORDER]
+    if unknown:
+        parser.error(f"unknown module '{unknown[0]}'; choose from: {', '.join(MODULE_ORDER)}")
 
     repo_root = Path(__file__).resolve().parents[1]
     destination = Path(args.destination).expanduser().resolve()
-    modules = [module for module in MODULE_ORDER if module in args.modules]
+    modules = [module for module in MODULE_ORDER if module in requested]
 
     # Validate everything before creating anything, so a bad argument leaves no folder behind.
     valid_segments = sorted({*brandlib.read_segment_index(repo_root), brandlib.GENERIC_SEGMENT})

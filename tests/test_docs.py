@@ -39,6 +39,17 @@ class DocsAndPackagingTests(unittest.TestCase):
             self.assertIn(name, architecture, name)
         self.assertIn("0.2.0", repo_text("CHANGELOG.md"))
 
+    def test_docs_do_not_overstate(self) -> None:
+        # Corrections from the final review.
+        readme = repo_text("README.md")
+        self.assertIn("`brand-journey` 需要和 `brand-foundation` 一起安装", readme)
+        self.assertIn("--modules execution,website", readme)
+        self.assertNotIn("--modules execution website", readme)
+        changelog = repo_text("CHANGELOG.md")
+        self.assertNotIn("hard rules are unchanged", changelog)
+        self.assertIn("one was extended", changelog)
+        self.assertIn("Reports are dated snapshots", repo_text("docs/ARCHITECTURE.md"))
+
     def test_plugin_manifest_is_valid_json(self) -> None:
         manifest = json.loads(repo_text(".claude-plugin/plugin.json"))
         self.assertEqual(manifest["name"], "branding-skills")

@@ -12,7 +12,7 @@
 | [`brand-visual-board`](skills/brand-visual-board/SKILL.md) | 把品牌基础和表达转成视觉方向与品牌板 | `output/brand-board.html`、`output/DESIGN.md` |
 | [`brand-handoff`](skills/brand-handoff/SKILL.md) | 把档案整理成给 AI 的速读文件和建站交接文件 | `COMPANY.md`、`SITE-BRIEF.md`、`AGENTS.md` |
 
-五个 Skill 可以单独使用。`BRAND.md` 是唯一的事实源，其余文件都由它派生。
+`brand-foundation`、`brand-expression`、`brand-visual-board`、`brand-handoff` 可以各自单独使用。`brand-journey` 需要和 `brand-foundation` 一起安装，因为提问、取证和记录的方法都在后者里。`BRAND.md` 是唯一的事实源，其余文件都由它派生。
 
 ## 工作流
 
@@ -85,10 +85,10 @@ cp -R skills/brand-journey skills/brand-foundation skills/brand-expression skill
 python3 scripts/create_brand_project.py ../my-client
 ```
 
-已经知道客户类型和要做的模块时，可以一起带上。目标目录写在前面：
+已经知道客户类型和要做的模块时，可以一起带上。多个模块用逗号分隔：
 
 ```bash
-python3 scripts/create_brand_project.py ../my-client --segment export-b2b --modules execution website
+python3 scripts/create_brand_project.py ../my-client --segment export-b2b --modules execution,website
 ```
 
 `--segment` 可取 `export-b2b`、`domestic-b2b`、`dtc-ecommerce`、`generic`；`--modules` 可取 `execution`、`website`。脚本会放好进度文件、指路文件，以及一份按客户类型和模块拼好的客户问卷（`intake/CLIENT-QUESTIONNAIRE.md`），可以直接发给客户预填。

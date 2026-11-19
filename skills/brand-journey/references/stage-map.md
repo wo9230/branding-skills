@@ -141,6 +141,8 @@
 
 **做到什么算完**：优化稿已经和原话对照给客户看过；`DEC-DIAGNOSIS`、`DEC-POLICY`、`DEC-POSITIONING` 由具名的客户审批人批准，或审批人明确接受其中的候选作为工作版本。
 
+**审批人只接受为工作版本时**：决策保持 `candidate`，不写成 `approved`。阶段 4 标 `done`，备注写"某人于某日接受某个 Decision ID 为工作版本"，`BRAND.md` 的变更记录写同一句。工作版本可以支撑后面的阶段；到阶段 7 仍要请客户正式批准，在那之前档案不能是 `approved`。
+
 **没过关时**：阶段状态记 `deferred: 原因`，不能记 `skipped` 或 `done`。后续阶段可以继续，但每份产出都标明"概念"，并说明等什么条件回来过关。
 
 **方法**：诊断问题家族；`strategy-and-execution.md` 的诊断、方针、定位五要素；`refinement.md`。
@@ -269,7 +271,7 @@
 1. 把整套品牌表述连起来读一遍：互相不矛盾；整套换上对手的名字不成立。
 2. 生成客户确认报告。生成前问一次是否写文件。格式见 [output-contracts.md](output-contracts.md)。
 3. 操作者带回客户的答复后，把决策状态、审批人和日期写回 `BRAND.md`。
-4. 本次范围内的承重选择全部获批后，才把 `record_status` 升为 `approved`；只批了一部分时保持 `working`。
+4. 承重选择全部获批、两个关卡都已通过，才把 `record_status` 升为 `approved`；否则保持 `working`。客户暂缓的事项怎样处理，见 [output-contracts.md](output-contracts.md) 的"写回批准结果"。
 5. 按顺序派生：`MESSAGING.md`（`$brand-expression`，默认做）；品牌板与 `output/DESIGN.md`（`$brand-visual-board`，可选）；`COMPANY.md`（`$brand-handoff`，默认做）；`SITE-BRIEF.md`（`$brand-handoff`，只在选了建站模块时做）。每份文件生成前各问一次。
 
 **做到什么算完**：客户确认报告已出；批准结果已写回 `BRAND.md`；派生文件已生成，或已明确暂缓。

@@ -14,7 +14,7 @@ languages: [zh-CN]
 markets: []
 owner: fictional-founder
 approvers: [fictional-founder]
-approval_scope: [positioning, brand-statements, execution-decisions, website-task]
+approval_scope: [positioning, brand-statements, offer, price-display, channel-roles, website-task]
 approved_by: [fictional-founder]
 approved_at: 2025-01-15
 allowed_use: internal
@@ -29,6 +29,7 @@ fictional: true
 
 - [已批准决策] 对象是公司品牌 Northline Sensor Lab。本次做定位，并做落地和建站两个模块（DEC-SCOPE-001）。
 - 用途：内部档案，以及派生建站交接。Owner 与审批人：`fictional-founder`。操作者：`fictional-studio`，不能代为批准。
+- 批准范围：定位、品牌表述、主推产品、价格展示、渠道分工和网站任务。每月短文（DEC-PROMO-001）客户选择暂缓，不在本次批准范围。
 - 权限：试点客户的名称和检查记录不得公开（SRC-003 为 restricted）。
 
 ## 2. 当前现实
@@ -44,6 +45,7 @@ fictional: true
 - 现有渠道与客户来源：[用户自述] 全部来自老客户介绍，三家里有两家是第一家介绍的。
 - 销售与跟进：[用户自述] 负责人一人跟进，通常当天回电话。
 - 可投入的人力与预算：[用户自述] 每月两天做推广；预算 [未知]。
+- 网站现有素材：[用户自述] 只有两张现场照片，不含客户仓库，可以公开（SRC-005）。示意图和负责人照片都还没有。
 
 ## 3. 客户情境
 
@@ -89,6 +91,7 @@ fictional: true
 | DEC-CHANNEL-001 | 老客户介绍负责带来新客户；官网负责让被介绍来的人确认可信 | approved | fictional-founder | 2025-01-13 | 现有客户全部来自介绍 | synthetic-demo | | |
 | DEC-PROMO-001 | 每月发一篇"审厂常见温度记录问题"的短文 | candidate | | | 负责人还没决定要不要做 | synthetic-demo | | |
 | DEC-SITE-001 | 网站的主要任务是让被介绍来的仓库负责人预约一次现场检查；主转化动作是提交预约表单 | approved | fictional-founder | 2025-01-14 | 被介绍的人会先上网查 | synthetic-demo | | |
+| DEC-SITE-002 | 网站只做中文；必备页面为服务、我们怎么做、关于我们、预约检查 | approved | fictional-founder | 2025-01-14 | 客户都在国内，一人维护 | synthetic-demo | | |
 
 非目标：传感器硬件销售、设备维修、大型自动化仓库、校准证书。
 
@@ -109,6 +112,7 @@ fictional: true
 | SRC-002 | 访谈 | SOURCE-MATERIAL.md 第二部分 | 2025-01-14 | 2025-01-14 | 公司整体 | 全文 | internal |
 | SRC-003 | 记录 | 三家试点仓库的检查记录（未随示例提供） | 2024-12-31 | 2025-01-11 | 三家试点 | 摘要 | restricted |
 | SRC-004 | 网页 | 两家同类服务商的公开网页 | 2025-01-09 | 2025-01-09 | 本地校准服务 | 首页 | public |
+| SRC-005 | 素材 | 现场照片两张（未随示例提供） | 2024-12-31 | 2025-01-14 | 现场检查，不含客户仓库 | 全部 | public |
 
 | Claim ID | 主张 | fact_status | 来源与范围 | permission | 阻塞什么 |
 |---|---|---|---|---|---|

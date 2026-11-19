@@ -121,9 +121,7 @@ class CreateBrandProjectTests(unittest.TestCase):
     def test_generic_segment_adds_no_pack_questions(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_root:
             destination = Path(temporary_root) / "sample-brand"
-            result = self.create(
-                destination, "--segment", "generic", "--modules", "website", "execution"
-            )
+            result = self.create(destination, "--segment", "generic", "--modules", "website,execution")
             self.assertEqual(result.returncode, 0, result.stderr)
             fm, rows = self.progress(destination)
             self.assertEqual(fm["segment"], "generic")
@@ -147,7 +145,34 @@ class CreateBrandProjectTests(unittest.TestCase):
             destination = Path(temporary_root) / "sample-brand"
             result = self.create(destination, "--modules", "ads")
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("invalid choice", result.stderr)
+            self.assertIn("unknown module 'ads'", result.stderr)
+            self.assertIn("execution, website", result.stderr)
+            self.assertFalse(destination.exists())
+
+    def test_modules_flag_may_come_before_the_destination(self) -> None:
+        # Found in the final review: "--modules execution DEST" used to swallow DEST.
+        with tempfile.TemporaryDirectory() as temporary_root:
+            destination = Path(temporary_root) / "sample-brand"
+            result = run_script("create_brand_project.py", "--modules", "execution", destination)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            fm, rows = self.progress(destination)
+            self.assertEqual(brandlib.parse_inline_list(fm["modules"]), ["execution"])
+            self.assertEqual(rows["W1"], "not-selected")
+
+    def test_modules_flag_may_repeat(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_root:
+            destination = Path(temporary_root) / "sample-brand"
+            result = self.create(destination, "--modules", "website", "--modules", "execution")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            fm, _ = self.progress(destination)
+            self.assertEqual(brandlib.parse_inline_list(fm["modules"]), ["execution", "website"])
+
+    def test_space_separated_modules_get_a_clear_error(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_root:
+            destination = Path(temporary_root) / "sample-brand"
+            result = self.create(destination, "--modules", "execution", "website")
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("--modules execution,website", result.stderr)
             self.assertFalse(destination.exists())
 
     def test_creates_project_in_non_ascii_path_with_spaces(self) -> None:
@@ -238,6 +263,23 @@ class DemoTests(unittest.TestCase):
         self.assertLessEqual(len(text.splitlines()), 150)
         brief = (EXAMPLE / "SITE-BRIEF.md").read_text(encoding="utf-8")
         self.assertEqual(len([line for line in brief.splitlines() if line.startswith("## ")]), 9)
+
+    def test_example_agrees_with_the_rules_it_illustrates(self) -> None:
+        # Corrections from the final review.
+        brand = (EXAMPLE / "BRAND.md").read_text(encoding="utf-8")
+        scope = brandlib.parse_inline_list(brandlib.parse_frontmatter(brand)["approval_scope"])
+        self.assertNotIn("execution-decisions", scope)
+        self.assertIn("不在本次批准范围", brand)
+        # What W1 settled must live in BRAND.md, not only in the site brief.
+        for token in ("DEC-SITE-002", "SRC-005"):
+            self.assertIn(token, brand, token)
+        brief = (EXAMPLE / "SITE-BRIEF.md").read_text(encoding="utf-8")
+        for token in ("DEC-SITE-002", "SRC-005"):
+            self.assertIn(token, brief, token)
+        company = (EXAMPLE / "COMPANY.md").read_text(encoding="utf-8")
+        for line in company.splitlines():
+            if line.startswith("- ") and "校准证书" in line and "不说" not in line:
+                self.assertRegex(line, r"^- \[", line)
 
     def test_demo_fails_when_fixture_breaks_the_check(self) -> None:
         # run_demo must really run the self-check: hand it a broken copy of the example.

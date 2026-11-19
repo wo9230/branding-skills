@@ -3,7 +3,7 @@
 这个文件夹是一家企业的品牌档案。开始任何任务之前，请按下面四条来。
 
 1. **先读 `COMPANY.md`**。它用一两页讲清这家企业：卖什么、卖给谁、凭什么、哪些话不能说。还没有这个文件时，读 `BRAND.md`。
-2. **事实和决定以 `BRAND.md` 为准**。`COMPANY.md` 和它不一致，或 `COMPANY.md` 文件头的 `foundation_version` 低于 `BRAND.md` 的 `version` 时，以 `BRAND.md` 为准，并提醒使用者 `COMPANY.md` 已过期、需要重新生成。
+2. **事实和决定以 `BRAND.md` 为准**。`COMPANY.md` 和它不一致，或 `COMPANY.md` 文件头的 `foundation_version` 低于 `BRAND.md` 的 `version` 时，以 `BRAND.md` 为准，并提醒使用者 `COMPANY.md` 已过期、需要重新生成。版本号按数字比较，一段一段地比：`0.10` 高于 `0.9`。
 3. **不要把候选和假设写成事实**。带 `[候选决策]`、`[假设]`、`[未知]` 标签的内容都还没有定。不要公开使用没有放行的说法、数字、客户名称或评价。
 4. **做网站相关的任务，再读 `SITE-BRIEF.md` 和 `output/DESIGN.md`**（存在时）。对外文案在 `MESSAGING.md`（存在时）。
 

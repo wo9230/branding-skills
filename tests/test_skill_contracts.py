@@ -302,3 +302,45 @@ class ExpressionAndVisualContractTests(unittest.TestCase):
         ):
             self.assertIn(token, contract, token)
         self.assertIn("output/DESIGN.md", repo_text("skills/brand-visual-board/SKILL.md"))
+
+
+class ReviewFixContractTests(unittest.TestCase):
+    """Text rules added after the final whole-branch review."""
+
+    def test_version_rule_is_stated_where_versions_are_written_and_read(self) -> None:
+        contract = repo_text(FOUNDATION + "references/output-contracts.md")
+        for token in ("按数字比较", '"0.10"'):
+            self.assertIn(token, contract, token)
+        for path in (HANDOFF + "assets/AGENTS-TEMPLATE.md", HANDOFF + "assets/AGENTS-SNIPPET.md"):
+            self.assertIn("按数字比较", repo_text(path), path)
+
+    def test_decision_status_values_and_relay_note_location(self) -> None:
+        contract = repo_text(FOUNDATION + "references/output-contracts.md")
+        for status in brandlib.DECISION_STATUSES:
+            self.assertIn(f"`{status}`", contract, status)
+        for path in (JOURNEY + "references/conduct-modes.md", JOURNEY + "references/output-contracts.md"):
+            text = repo_text(path)
+            self.assertIn("经操作者转述", text, path)
+            self.assertIn("变更记录", text, path)
+
+    def test_working_version_at_the_gate_has_a_recorded_form(self) -> None:
+        text = repo_text(JOURNEY + "references/stage-map.md")
+        for token in ("接受为工作版本", "保持 `candidate`"):
+            self.assertIn(token, text, token)
+
+    def test_secondary_segment_pack_survives_a_resume(self) -> None:
+        self.assertIn("第二细分包：", repo_text(JOURNEY + "references/segments/INDEX.md"))
+
+    def test_partial_approval_scope_rule(self) -> None:
+        text = repo_text(JOURNEY + "references/output-contracts.md")
+        for token in ("approval_scope", "暂缓的事项"):
+            self.assertIn(token, text, token)
+
+    def test_client_report_template_matches_its_contract(self) -> None:
+        template = repo_text(JOURNEY + "assets/CLIENT-REPORT-TEMPLATE.md")
+        contract = repo_text(JOURNEY + "references/output-contracts.md")
+        sections = [line for line in template.splitlines() if line.startswith("## ")]
+        self.assertEqual(len(sections), 6)
+        for token in ("保留意见", "这些内容从哪里来"):
+            self.assertIn(token, template, token)
+            self.assertIn(token, contract, token)
