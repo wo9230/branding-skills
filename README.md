@@ -72,10 +72,21 @@ brand-journey ──────────── 进度文件 PROGRESS.md
 
 ### Codex
 
+把本仓库装成插件。Codex 读的是和 Claude Code 同一份插件清单：
+
+```bash
+codex plugin marketplace add wo9230/branding-skills
+codex plugin add branding-skills@branding-skills
+```
+
+也可以不装插件，直接复制 Skill：
+
 ```bash
 mkdir -p ~/.codex/skills
 cp -R skills/brand-journey skills/brand-foundation skills/brand-expression skills/brand-visual-board skills/brand-handoff ~/.codex/skills/
 ```
+
+两种装法都在 Codex CLI 0.166.0 上验证过。
 
 ### 建一个客户项目
 
@@ -102,6 +113,16 @@ python3 scripts/create_brand_project.py ../my-client --segment export-b2b --modu
 ```
 
 中断之后再回来，说一句"继续"即可，它会从 `PROGRESS.md` 记录的下一问接着问。只想整理现有材料、不走整套访谈时，直接用 `$brand-foundation`。
+
+`$brand-journey` 这种写法指的是技能名。在 Codex 里输入 `$` 可以从列表里选技能；在 Claude Code 里直接说出技能名即可。
+
+### Claude Code 和 Codex 共用一套
+
+两个工具用的是同一套文件，不需要各维护一份：
+
+- **技能**：两边装的都是本仓库的 `skills/` 目录。
+- **客户项目里的规则**：只有一份 `AGENTS.md`。Codex 自动读它。Claude Code 从 v2.1.277 起，在项目目录和上级目录都没有 `CLAUDE.md` 时也自动读它。
+- **已经有 `CLAUDE.md` 时**：Claude Code 只读 `CLAUDE.md`，不读 `AGENTS.md`。在那份 `CLAUDE.md` 里加一行 `@AGENTS.md`，两边就仍然共用一份规则。更早版本的 Claude Code 也用这个办法：在客户项目里建一个只有这一行的 `CLAUDE.md`。
 
 ## 客户项目里的文件
 

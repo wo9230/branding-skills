@@ -27,6 +27,15 @@ class DocsAndPackagingTests(unittest.TestCase):
         ):
             self.assertIn(token, text, token)
 
+    def test_readme_installs_in_codex_and_shares_one_rules_file(self) -> None:
+        readme = repo_text("README.md")
+        for token in (
+            "codex plugin marketplace add wo9230/branding-skills",
+            "codex plugin add branding-skills@branding-skills",
+            "@AGENTS.md",
+        ):
+            self.assertIn(token, readme, token)
+
     def test_contributing_explains_how_to_add_a_segment_pack(self) -> None:
         text = repo_text("CONTRIBUTING.md")
         for token in ("segments/INDEX.md", "validate_skills.py", "check_brand_project.py", "evals/"):

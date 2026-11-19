@@ -278,6 +278,11 @@ class HandoffContractTests(unittest.TestCase):
         ):
             self.assertIn(token, text, token)
 
+    def test_one_agents_file_serves_claude_code_and_codex(self) -> None:
+        contract = repo_text(HANDOFF + "references/output-contracts.md")
+        for token in ("Codex", "Claude Code", "@AGENTS.md"):
+            self.assertIn(token, contract, token)
+
 
 if __name__ == "__main__":
     unittest.main()
