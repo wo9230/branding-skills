@@ -21,6 +21,7 @@ EXPECTED_EVALS: tuple[str, ...] = (
     "10-embellishment",
     "11-keep-original",
     "12-core-only",
+    "13-mid-interview-company",
     "14-legacy-brand-v1",
     "15-hybrid-client",
     "16-add-module-later",

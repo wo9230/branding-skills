@@ -10,7 +10,13 @@ from pathlib import Path
 import brandlib
 
 
-SKILL_NAMES = ("brand-foundation", "brand-expression", "brand-visual-board", "brand-journey")
+SKILL_NAMES = (
+    "brand-foundation",
+    "brand-expression",
+    "brand-visual-board",
+    "brand-journey",
+    "brand-handoff",
+)
 MAX_SKILL_LINES = 120
 RESERVED_SEGMENTS = (brandlib.GENERIC_SEGMENT, brandlib.UNKNOWN_SEGMENT)
 FRONTMATTER = re.compile(r"\A---\n(?P<body>.*?)\n---\n", re.S)

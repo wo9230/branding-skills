@@ -213,5 +213,71 @@ class JourneyContractTests(unittest.TestCase):
             self.assertIn(token, text, token)
 
 
+HANDOFF = "skills/brand-handoff/"
+
+
+class HandoffContractTests(unittest.TestCase):
+    def level_two(self, text: str) -> list[str]:
+        return [line for line in text.splitlines() if line.startswith("## ")]
+
+    def test_company_template(self) -> None:
+        text = repo_text(HANDOFF + "assets/COMPANY-TEMPLATE.md")
+        fm = brandlib.parse_frontmatter(text)
+        self.assertIn(fm["schema"], brandlib.SCHEMAS["COMPANY.md"])
+        for key in ("brand_id", "foundation_version", "messaging_version", "generated"):
+            self.assertIn(key, fm)
+        headings = self.level_two(text)
+        self.assertEqual(len(headings), 12)
+        self.assertEqual(headings[0], "## 1. 一句话")
+        self.assertEqual(headings[5], "## 6. 产品、价格、渠道、推广")
+        self.assertEqual(headings[9], "## 10. 网站目标与主转化")
+        self.assertEqual(headings[11], "## 12. 细节去哪里读")
+
+    def test_site_brief_template(self) -> None:
+        text = repo_text(HANDOFF + "assets/SITE-BRIEF-TEMPLATE.md")
+        fm = brandlib.parse_frontmatter(text)
+        self.assertIn(fm["schema"], brandlib.SCHEMAS["SITE-BRIEF.md"])
+        self.assertEqual(fm["brief_status"], "concept")
+        for key in ("brand_id", "foundation_version", "language", "primary_conversion", "platform"):
+            self.assertIn(key, fm)
+        headings = self.level_two(text)
+        self.assertEqual(len(headings), 9)
+        self.assertEqual(headings[0], "## 1. 网站的任务")
+        self.assertEqual(headings[8], "## 9. 给建站 AI 的要求")
+
+    def test_agents_template_points_the_way(self) -> None:
+        text = repo_text(HANDOFF + "assets/AGENTS-TEMPLATE.md")
+        for token in ("COMPANY.md", "BRAND.md", "SITE-BRIEF.md", "output/DESIGN.md"):
+            self.assertIn(token, text, token)
+        snippet = repo_text(HANDOFF + "assets/AGENTS-SNIPPET.md")
+        for token in ("COMPANY.md", "BRAND.md", "SITE-BRIEF.md"):
+            self.assertIn(token, snippet, token)
+
+    def test_references_carry_the_rules(self) -> None:
+        company = repo_text(HANDOFF + "references/company-context.md")
+        for token in ("150", "本次未做", "访谈未完成", "[候选决策]", "foundation_version"):
+            self.assertIn(token, company, token)
+        brief = repo_text(HANDOFF + "references/site-brief-method.md")
+        for token in ("概念，未批准", "待表达", "Copy ID", "网站交接模式"):
+            self.assertIn(token, brief, token)
+        contract = repo_text(HANDOFF + "references/output-contracts.md")
+        for token in ("company-context/v1", "site-brief/v1", "concept | working | approved"):
+            self.assertIn(token, contract, token)
+
+    def test_skill_entry(self) -> None:
+        text = repo_text(HANDOFF + "SKILL.md")
+        for token in (
+            "COMPANY.md",
+            "SITE-BRIEF.md",
+            "AGENTS.md",
+            "$brand-journey",
+            "$brand-foundation",
+            "references/company-context.md",
+            "references/site-brief-method.md",
+            "references/output-contracts.md",
+        ):
+            self.assertIn(token, text, token)
+
+
 if __name__ == "__main__":
     unittest.main()

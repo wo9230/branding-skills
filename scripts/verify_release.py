@@ -68,6 +68,7 @@ REQUIRED_SKILLS = {
     "brand-expression",
     "brand-visual-board",
     "brand-journey",
+    "brand-handoff",
 }
 
 # Directories whose files must all be marked as synthetic, with the label used in failures.
