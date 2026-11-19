@@ -10,6 +10,9 @@ import brandlib
 # Add a scenario name here first, then write evals/<name>.md.
 EXPECTED_EVALS: tuple[str, ...] = (
     "01-blank-number",
+    "09-weak-statement",
+    "10-embellishment",
+    "11-keep-original",
 )
 EVAL_HEADINGS = ("## 材料", "## 操作", "## 应当出现", "## 不应出现")
 

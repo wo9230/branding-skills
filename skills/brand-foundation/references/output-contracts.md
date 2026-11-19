@@ -82,7 +82,7 @@ allowed_use: internal
 1. **范围与治理**：current task、brand object、intended use、owner、approvers、permission boundary；
 2. **当前现实**：actual offering、commercial state、fit conditions、exclusion conditions、promise limits；v2 另加 business model and revenue mix、product architecture、current price rules and terms、current channels and customer sources、sales follow-up、people and budget；
 3. **客户情境**：priority audience、trigger/job、alternatives、buying roles、choice/loss evidence；v2 另加 competition and alternatives table；
-4. **战略选择**：v2 先写 diagnosis、guiding policy、positioning five elements，再接固定决策表，包含 Decision ID、choice、decision_status、owner、date、reason、scope；
+4. **战略选择**：v2 先写 diagnosis、guiding policy、positioning five elements，再接固定决策表，包含 Decision ID、choice、decision_status、owner、date、reason、scope，v2 另加 formed_by、origin_ref；
 5. **身份、声音与信息**：origin/principles、voice_basis、voice direction、voice samples、main message、supporting points、intended action、public claims；
 6. **证据、冲突与未知**：source register、claim register、conflicts、stale material、research gaps；
 7. **会话状态与变更记录**：current goal、interaction mode、interaction pace、session status、materials read、decisions recorded、highest-priority gap、next action、change log。
@@ -133,6 +133,17 @@ v2 在决策表之前先写三项，方法见 [strategy-and-execution.md](strate
 
 三项各自对应决策表里的一行，状态以决策表为准。
 
+v2 的决策表固定为九列，表头照写：
+
+| Decision ID | choice | decision_status | owner | date | reason | scope | formed_by | origin_ref |
+|---|---|---|---|---|---|---|---|---|
+
+- `decision_status` 一列只写 `candidate`、`approved`、`rejected`、`superseded` 之一，不加标签或说明；正文里的 `[候选决策]`、`[已批准决策]` 由这一列推出。
+- 决策表只登记已经有人提出的候选或决定。还没人提出的事项不占行，写进第 6 组的未知。
+- `formed_by` 记这条表述是怎样形成的：`client-original`（客户原话直接采用）、`ai-refined`（AI 的优化稿经客户确认）、`co-edited`（客户在优化稿上改过后确认）。`origin_ref` 填原话所在的 Source ID 或 Claim ID。做法见 [refinement.md](refinement.md)。
+- 这两列对判断与表述类的决策必填，即前缀为 `DEC-DIAGNOSIS`、`DEC-POLICY`、`DEC-POSITIONING`、`DEC-AUDIENCE`、`DEC-MESSAGE`、`DEC-VOICE` 的行；其他决策可以留空。
+- v1 档案的七列决策表照样可读，升级到 v2 时在行尾补两列，旧行不知道就留空。
+
 事实与决策不能混：现行价格规则是事实，放第 2 组；"网站上是否公开价格、怎么展示"是决策，放本组。渠道同理：客户现在从哪来是事实，各渠道今后各管什么是决策。
 
 Decision ID 必须稳定：已有 ID 原样保留；首次创建时按语义类型使用 `DEC-SCOPE-001`、`DEC-OFFER-001`、`DEC-AUDIENCE-001`、`DEC-POSITIONING-001`、`DEC-CLAIM-001`、`DEC-VOICE-001`、`DEC-MESSAGE-001`、`DEC-VISUAL-001` 或 `DEC-OTHER-001`，同类后续递增。不要因为输入来自工作簿或访谈、表格顺序不同或重写措辞而重新编号。
@@ -161,14 +172,23 @@ v2 新增七个前缀，编号规则相同：
 
 ### 6. 证据、冲突与未知
 
+来源登记用表格，字段含义见 [evidence-and-decisions.md](evidence-and-decisions.md) 的"最小来源记录"：
+
+| Source ID | source_type | location | source_date | checked_at | scope | read_scope | permission |
+|---|---|---|---|---|---|---|---|
+
 重要主张用表格：
 
 | Claim ID | 主张 | fact_status | 来源与范围 | permission | 阻塞什么 |
 |---|---|---|---|---|---|
 
+编号格式固定，其他文件和自检脚本都按它引用：Source ID 从 `SRC-001` 起，Claim ID 从 `CLM-001` 起，都是三位数字、同类递增；已有编号不重排、不复用。表头的 `Source ID`、`Claim ID` 两个列名照写，不要翻译或改写。"来源与范围"一列用 Source ID 指向来源。
+
 Claim register 只登记材料实际提出的现实主张、用户自述或待验证解释。不要把“不得声称 X”反向扩写成一个新的“X 为 unknown”主张；这类内容保留在批准的排除决定、承诺限制或禁止公开项中。这样同一输入经工作簿与访谈进入时不会因为措辞形式产生不同的虚假主张集合。
 
 另列冲突、过期资料、研究缺口和被排除的虚构/无来源内容。
+
+**AI 的保留意见**（v2）：客户审批人保留了自己的原话，而 AI 认为它没过 [refinement.md](refinement.md) 的某条质量标准时，在这个小标题下记一行：对应的 Decision ID、哪条标准没过、日期。每条决策只记一次，之后不再反复提。它是提醒，不改变决策状态。
 
 如品牌已经进入实际使用，可增加学习记录。学习记录只描述某项已批准或候选表达在指定范围内的观察结果：
 

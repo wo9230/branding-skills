@@ -26,6 +26,14 @@ class FoundationV2ContractTests(unittest.TestCase):
         ):
             self.assertIn(token, text, token)
 
+    def test_output_contract_pins_id_formats_and_register_headers(self) -> None:
+        # Found in dry run 01: without these, a model invents ids such as "C-001".
+        text = repo_text(FOUNDATION + "references/output-contracts.md")
+        for token in ("CLM-001", "SRC-001", "| Source ID |", "| Claim ID |", "不占行"):
+            self.assertIn(token, text, token)
+        for example in ("CLM-001", "SRC-001", "DEC-POSITIONING-001"):
+            self.assertEqual(brandlib.find_ids(example), {example})
+
     def test_strategy_reference_has_all_modules(self) -> None:
         text = repo_text(FOUNDATION + "references/strategy-and-execution.md")
         for heading in (
@@ -58,6 +66,46 @@ class FoundationV2ContractTests(unittest.TestCase):
         text = repo_text(FOUNDATION + "SKILL.md")
         self.assertIn("references/strategy-and-execution.md", text)
         self.assertLessEqual(len(text.splitlines()), 120)
+
+
+class RefinementContractTests(unittest.TestCase):
+    def test_refinement_reference_is_complete(self) -> None:
+        text = repo_text(FOUNDATION + "references/refinement.md")
+        for heading in (
+            "## 两类内容",
+            "## 品牌表述包含什么",
+            "## 六步",
+            "## 质量标准",
+            "## 边界",
+            "## 记录方式",
+        ):
+            self.assertIn(heading, text, heading)
+        for standard in ("具体", "可区分", "有取舍", "有依据", "不夸大", "听得懂", "说得出口"):
+            self.assertIn(standard, text, standard)
+        for token in (
+            "最多三个",
+            "两轮",
+            "采用",
+            "修改",
+            "保留原话",
+            "暂缓",
+            "待补证据",
+            *brandlib.FORMED_BY,
+        ):
+            self.assertIn(token, text, token)
+
+    def test_decision_table_has_refinement_columns(self) -> None:
+        header = (
+            "| Decision ID | choice | decision_status | owner | date | reason | scope "
+            "| formed_by | origin_ref |"
+        )
+        contract = repo_text(FOUNDATION + "references/output-contracts.md")
+        self.assertIn(header, contract)
+        self.assertIn("AI 的保留意见", contract)
+        self.assertIn("formed_by", repo_text(FOUNDATION + "assets/BRAND-WORKBOOK.md"))
+
+    def test_skill_entry_points_to_refinement(self) -> None:
+        self.assertIn("references/refinement.md", repo_text(FOUNDATION + "SKILL.md"))
 
 
 if __name__ == "__main__":

@@ -137,9 +137,11 @@ Decision ID 按内容使用稳定前缀，例如 `DEC-AUDIENCE-001`、`DEC-POSIT
 
 > 回答：
 
-| Decision ID | 候选或选择 | decision_status (`candidate/approved/rejected/superseded`) | owner | date | reason / trade-off | 适用范围 |
-|---|---|---|---|---|---|---|
-| DEC-AUDIENCE-001 |  | candidate |  |  |  |  |
+| Decision ID | 候选或选择 | decision_status (`candidate/approved/rejected/superseded`) | owner | date | reason / trade-off | 适用范围 | formed_by (`client-original/ai-refined/co-edited`) | origin_ref |
+|---|---|---|---|---|---|---|---|---|
+| DEC-AUDIENCE-001 |  | candidate |  |  |  |  |  |  |
+
+最后两列记这句话是怎么来的：你自己的原话直接用（`client-original`）、采用了 AI 的优化稿（`ai-refined`），还是你在优化稿上改过（`co-edited`）；`origin_ref` 填原话在材料索引里的 Source ID。还没走到这一步就留空。
 
 **你目前最愿意优先验证哪一种受众、需求或定位？**
 
