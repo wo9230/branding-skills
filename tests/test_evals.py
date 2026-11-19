@@ -8,7 +8,9 @@ import brandlib
 
 
 # Add a scenario name here first, then write evals/<name>.md.
-EXPECTED_EVALS: tuple[str, ...] = ()
+EXPECTED_EVALS: tuple[str, ...] = (
+    "01-blank-number",
+)
 EVAL_HEADINGS = ("## 材料", "## 操作", "## 应当出现", "## 不应出现")
 
 
