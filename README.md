@@ -1,71 +1,147 @@
 # Branding Skills
 
-一组用于建立品牌基础、生成品牌表达和探索视觉方向的 AI Skills。
+一组 AI Skills：主持一场不跑偏的客户品牌访谈，把结论沉淀成一套档案，让之后任何 AI 读档案就能了解这家企业，不用再采访一遍。
 
 ## 功能
 
-| Skill | 功能 | 主要输出 |
+| Skill | 做什么 | 主要输出 |
 |---|---|---|
-| [`brand-foundation`](skills/brand-foundation/SKILL.md) | 整理品牌事实、证据、受众、定位和关键决策 | `BRAND.md` |
-| [`brand-expression`](skills/brand-expression/SKILL.md) | 将品牌基础转成定位、核心信息、品牌声音和渠道文案 | `MESSAGING.md` |
-| [`brand-visual-board`](skills/brand-visual-board/SKILL.md) | 将品牌基础和表达转成视觉方向与品牌板 | `output/brand-system.md`、`output/brand-board.html` |
+| [`brand-journey`](skills/brand-journey/SKILL.md) | 总入口。分阶段主持访谈，记录进度，随时续接，按客户类型自动加问 | `PROGRESS.md`、客户确认报告 |
+| [`brand-foundation`](skills/brand-foundation/SKILL.md) | 整理品牌事实、证据、受众、定位和关键决策；把客户的原话优化后交给客户确认 | `BRAND.md` |
+| [`brand-expression`](skills/brand-expression/SKILL.md) | 把品牌基础转成定位表述、核心信息、品牌声音、渠道文案和网站页面文案 | `MESSAGING.md` |
+| [`brand-visual-board`](skills/brand-visual-board/SKILL.md) | 把品牌基础和表达转成视觉方向与品牌板 | `output/brand-board.html`、`output/DESIGN.md` |
+| [`brand-handoff`](skills/brand-handoff/SKILL.md) | 把档案整理成给 AI 的速读文件和建站交接文件 | `COMPANY.md`、`SITE-BRIEF.md`、`AGENTS.md` |
+
+五个 Skill 可以单独使用。`BRAND.md` 是唯一的事实源，其余文件都由它派生。
 
 ## 工作流
 
 ```text
-品牌资料
-   ↓
-brand-foundation
-   ↓
-BRAND.md
-   ↓
-brand-expression
-   ↓
-MESSAGING.md
-   ↓
-brand-visual-board
-   ↓
-Brand Board
+客户资料（官网、画册、目录、聊天记录、问卷）
+        │
+        ▼
+brand-journey ──────────── 进度文件 PROGRESS.md
+  │  每个阶段调用 brand-foundation 的方法，写入 BRAND.md
+  │  最后出客户确认报告，然后依次派生：
+  ├─▶ brand-expression ───▶ MESSAGING.md
+  ├─▶ brand-visual-board ─▶ 品牌板、output/DESIGN.md（可选）
+  └─▶ brand-handoff ──────▶ COMPANY.md；要建站时再出 SITE-BRIEF.md
 ```
 
-`BRAND.md` 保存品牌事实与决策；表达和视觉文件由它派生。
+## 必选与可选
+
+**必选主线**每个客户都走，产出完整的定位和品牌表述：
+
+立项与预读 → 业务现状 → 客户与成交场景 → 竞争与替代 → 诊断与定位（关卡）→ 证明与信任 → 身份、声音与品牌表述 → 汇总确认（关卡）
+
+**可选模块**按客户需要加开，可以事后再加，不用重走主线：
+
+| 模块 | 内容 | 什么时候选 |
+|---|---|---|
+| 落地 `execution` | 产品与价格、渠道与推广 | 客户不只要定位，还要落到怎么卖 |
+| 建站 `website` | 网站目标与约束 | 这次要建站或改版 |
+
+访谈里有几条不变的规则：
+
+- 每一轮都带进度行，随时说得出在第几阶段、还差什么。
+- 客户说到别的事，先记进稍后处理清单，再回到当前问题。
+- 客户的原话不直接当定稿：AI 先指出哪里弱，再给最多三个只用已有事实的优化稿，和原话并排，由客户确认。
+- 关卡可以暂缓，不能跳过。操作者不能替客户批准。
+- 事实、假设、候选和已批准的决定始终分开标注，不编造数字、案例或评价。
+
+客户类型由细分包自动补充：外贸 B2B、国内 B2B、DTC 电商。哪一类都不像时只走通用主线。
 
 ## 快速开始
 
-将需要的 Skill 复制到 Agent 的 Skill 目录。以 Codex 为例：
+### Claude Code
+
+把本仓库装成插件：
+
+```text
+/plugin install branding-skills --marketplace wo9230/branding-skills
+```
+
+较早的版本分两步：
+
+```text
+/plugin marketplace add wo9230/branding-skills
+/plugin install branding-skills@branding-skills
+```
+
+也可以不装插件，直接把需要的 Skill 复制到 `~/.claude/skills/`。
+
+### Codex
 
 ```bash
 mkdir -p ~/.codex/skills
-cp -R skills/brand-foundation ~/.codex/skills/
-cp -R skills/brand-expression ~/.codex/skills/
-cp -R skills/brand-visual-board ~/.codex/skills/
+cp -R skills/brand-journey skills/brand-foundation skills/brand-expression skills/brand-visual-board skills/brand-handoff ~/.codex/skills/
 ```
 
-创建独立品牌项目：
+### 建一个客户项目
+
+客户资料不放在本仓库里。每个客户建一个独立目录：
 
 ```bash
-python3 scripts/create_brand_project.py ../my-brand
+python3 scripts/create_brand_project.py ../my-client
 ```
 
-依次调用：
+已经知道客户类型和要做的模块时，可以一起带上。目标目录写在前面：
+
+```bash
+python3 scripts/create_brand_project.py ../my-client --segment export-b2b --modules execution website
+```
+
+`--segment` 可取 `export-b2b`、`domestic-b2b`、`dtc-ecommerce`、`generic`；`--modules` 可取 `execution`、`website`。脚本会放好进度文件、指路文件，以及一份按客户类型和模块拼好的客户问卷（`intake/CLIENT-QUESTIONNAIRE.md`），可以直接发给客户预填。
+
+### 开始访谈
+
+在客户项目目录里对 AI 说：
 
 ```text
-使用 $brand-foundation，读取当前品牌资料并生成 BRAND.md。
-
-使用 $brand-expression，基于 BRAND.md 生成 MESSAGING.md。
-
-使用 $brand-visual-board，基于 BRAND.md 和 MESSAGING.md 生成品牌视觉板。
+使用 $brand-journey 给这家客户开始建档。这次要定位，也要建站。
 ```
+
+中断之后再回来，说一句"继续"即可，它会从 `PROGRESS.md` 记录的下一问接着问。只想整理现有材料、不走整套访谈时，直接用 `$brand-foundation`。
+
+## 客户项目里的文件
+
+```text
+客户项目/
+  AGENTS.md       指路文件：告诉任何 AI 先读 COMPANY.md
+  PROGRESS.md     访谈进度：已选模块、阶段状态、下一问、稍后处理清单
+  BRAND.md        事实与决策，唯一事实源
+  MESSAGING.md    对外表达（派生）
+  COMPANY.md      一两页 AI 速读（派生）
+  SITE-BRIEF.md   建站交接（派生，做了建站模块才有）
+  intake/         客户问卷和工作簿
+  sources/        已授权、已脱敏的资料
+  reports/        给客户确认的报告、日期快照
+  output/         品牌板、DESIGN.md
+```
+
+企业情况变了，不用重新访谈：更新 `BRAND.md` 并升版本号，然后检查哪些派生文件过期了，重新生成即可。
+
+```bash
+python3 scripts/check_brand_project.py ../my-client
+```
+
+这个脚本只读不写。它会报告过期的派生文件、引用了不存在编号的地方、被跳过的必选阶段，以及没有写审批人或日期的批准。
+
+## 与其他技能库的衔接
+
+- 网站代码仓库里用了别的营销或建站技能库时，把 `COMPANY.md` 当作它们的企业上下文来源，把 `SITE-BRIEF.md` 和 `output/DESIGN.md` 交给建站的 AI。`skills/brand-handoff/assets/AGENTS-SNIPPET.md` 是一段可以贴进网站仓库 `AGENTS.md` 或 `CLAUDE.md` 的说明。
+- 要检查一段文案是否符合品牌声音，可以把 `MESSAGING.md` 和 `COMPANY.md` 的"不能说的话""声音"两节交给已有的品牌审查技能，作为审查依据。
+- 本项目不做投放、SEO 运营、邮件发送和网站代码生成，只提供它们能读的上下文。
 
 ## 运行虚构 Demo
 
-Demo 只使用 `examples/fictional-b2b/` 中明确标记的虚构数据：
+`examples/fictional-b2b/` 是一套完全虚构的完整档案，走完了全部阶段和两个模块。
 
 ```bash
 python3 scripts/run_demo.py --output /tmp/branding-skills-demo
 ```
 
-运行成功后，输出目录包含一份虚构输入、`BRAND.md` 和 `MESSAGING.md`，可用于查看文件关系和状态字段。
+运行后输出目录里有全部文件，并已通过项目自检。各文件的说明见 [examples/README.md](examples/README.md)。
 
 ## 验证
 
@@ -73,7 +149,10 @@ python3 scripts/run_demo.py --output /tmp/branding-skills-demo
 python3 scripts/verify_release.py .
 python3 scripts/validate_skills.py .
 python3 -m unittest discover -s tests -v
+python3 scripts/check_brand_project.py examples/fictional-b2b
 ```
+
+`evals/` 里是用虚构材料写的行为场景，用来检查一个没有任何背景的 AI 只凭 Skill 文件能不能做对。它们不进 CI，运行方法见 [evals/README.md](evals/README.md)。
 
 ## 文档
 
@@ -81,7 +160,29 @@ python3 -m unittest discover -s tests -v
 - [安全使用资料](docs/PRIVACY.md)
 - [开源范围](OSS-SCOPE.md)
 - [贡献指南](CONTRIBUTING.md)
+- [更新日志](CHANGELOG.md)
 - [安全政策](SECURITY.md)
+
+## 致谢
+
+本项目的方法借鉴了下列公开的思路和项目。只借鉴做法，没有复制其中的文字。
+
+方法来源：
+
+- 理查德·鲁梅尔特的"战略内核"：诊断、指导方针、连贯行动。
+- April Dunford 的定位五要素。
+- "待办任务"（Jobs to Be Done）与切换访谈。
+
+参考过的开源项目：
+
+- [coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills)：用一份共享的上下文文件让多个技能了解同一家企业。
+- [wondelai/skills](https://github.com/wondelai/skills)：带进度文件、可续接、有关卡的分阶段流程。
+- [rampstackco/claude-skills](https://github.com/rampstackco/claude-skills)：直接、间接、维持现状三层竞争。
+- [cofoundy/brand-skills](https://github.com/cofoundy/brand-skills)：把品牌产物组织成一套带清单的文件包。
+- [afadtc/afa-dtc-skills](https://github.com/afadtc/afa-dtc-skills)：数据不足时照实留白。
+- [noique/cross-border-ecommerce-skills](https://github.com/noique/cross-border-ecommerce-skills)：按业务类型路由。
+- [google-labs-code/design.md](https://github.com/google-labs-code/design.md)：给编码代理读的 `DESIGN.md` 开放格式。
+- [arnabbagxd/Brand-building-skills](https://github.com/arnabbagxd/Brand-building-skills)：发给客户预填的问卷。
 
 ## License
 

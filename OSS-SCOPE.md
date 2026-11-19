@@ -2,10 +2,13 @@
 
 ## Included
 
-- Three reusable Branding Skills and their generic references and templates.
+- Five reusable Branding Skills and their generic references and templates.
+- Segment packs for three client types, with a registry for adding more.
 - A project initializer that creates an isolated brand workspace.
-- A runnable demo built only from synthetic data.
+- A read-only checker for a brand workspace.
+- A runnable demo and behaviour scenarios built only from synthetic data.
 - Dependency-free validation and release-boundary checks.
+- A Claude Code plugin manifest.
 - Public architecture, privacy, contribution, and security documentation.
 
 ## Not included
