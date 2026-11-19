@@ -121,8 +121,9 @@ python3 scripts/create_brand_project.py ../my-client --segment export-b2b --modu
 两个工具用的是同一套文件，不需要各维护一份：
 
 - **技能**：两边装的都是本仓库的 `skills/` 目录。
-- **客户项目里的规则**：只有一份 `AGENTS.md`。Codex 自动读它。Claude Code 从 v2.1.277 起，在项目目录和上级目录都没有 `CLAUDE.md` 时也自动读它。
-- **已经有 `CLAUDE.md` 时**：Claude Code 只读 `CLAUDE.md`，不读 `AGENTS.md`。在那份 `CLAUDE.md` 里加一行 `@AGENTS.md`，两边就仍然共用一份规则。更早版本的 Claude Code 也用这个办法：在客户项目里建一个只有这一行的 `CLAUDE.md`。
+- **客户项目里的规则**：只有一份 `AGENTS.md`。Codex 自动读它。Claude Code 从 v2.1.277 起，在没有别的文件挡住时也自动读它。
+- **什么会挡住**：客户项目目录或任何一级上级目录里有 `CLAUDE.md`、`.claude/CLAUDE.md` 或 `CLAUDE.local.md`。有其中一份，Claude Code 就只读那些文件，不读 `AGENTS.md`。主目录下的 `~/.claude/CLAUDE.md` 不算。
+- **被挡住时怎么办**：在客户项目根目录、和 `AGENTS.md` 同一个目录里，放一份 `CLAUDE.md`，里面写一行 `@AGENTS.md`。这个目录里已经有 `CLAUDE.md` 时，直接加这一行。不要把这一行加到上级目录的文件里：`@` 后面的路径从那个文件所在的目录算起，读不到客户项目里的这一份。更早版本的 Claude Code 也用这个办法。
 
 ## 客户项目里的文件
 

@@ -78,8 +78,13 @@ platform: ""
 这一份 `AGENTS.md` 由 Codex 和 Claude Code 共用，不另写第二份规则：
 
 - Codex 自动读它。
-- Claude Code 在项目目录和上级目录都没有 `CLAUDE.md` 时自动读它（需要 v2.1.277 或更新）。
-- 项目目录或上级目录里有 `CLAUDE.md` 时，Claude Code 只读 `CLAUDE.md`。告诉用户这一点，并问是否在那份 `CLAUDE.md` 里加一行 `@AGENTS.md`，让两边仍然共用同一份规则。没有得到同意，不新建也不改写 `CLAUDE.md`。
+- Claude Code 在没有别的文件挡住时自动读它（需要 v2.1.277 或更新）。
+- 挡住它的文件有三种：`CLAUDE.md`、`.claude/CLAUDE.md`、`CLAUDE.local.md`。客户项目目录或任何一级上级目录里有其中一份，Claude Code 就只读那些文件，不读 `AGENTS.md`。用户主目录下的 `~/.claude/CLAUDE.md` 不算在内。
+- 发现有文件挡住时，告诉用户是哪一份，并问是否在客户项目根目录、和 `AGENTS.md` 同一个目录里，放一份带 `@AGENTS.md` 这一行的 `CLAUDE.md`：
+  - 这个目录里已经有 `CLAUDE.md`：在里面加这一行。
+  - 这个目录里没有 `CLAUDE.md`：新建一份，只写这一行。挡住的文件在上级目录里，或者是 `.claude/CLAUDE.md`、`CLAUDE.local.md` 时，都属于这种情况。
+- 这一行不写进上级目录的文件，也不写进 `.claude/CLAUDE.md`。`@` 后面的相对路径从写这一行的文件所在的目录算起，写在别处就读不到客户项目里的这份 `AGENTS.md`。
+- 没有得到同意，不新建也不改写任何 `CLAUDE.md`。
 
 网站代码通常在另一个仓库。[../assets/AGENTS-SNIPPET.md](../assets/AGENTS-SNIPPET.md) 是一段可以粘贴进那个仓库的 `AGENTS.md` 或 `CLAUDE.md` 的文字，告诉那里的 AI 去哪里找这几份文件。
 

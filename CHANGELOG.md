@@ -5,7 +5,7 @@
 ### Changed
 
 - README: Codex installs this repository as a plugin from the same manifest Claude Code uses (`codex plugin marketplace add`, then `codex plugin add`). Checked on Codex CLI 0.166.0, along with the copy-into-`~/.codex/skills` route.
-- `brand-handoff`: one `AGENTS.md` serves both Codex and Claude Code. When a `CLAUDE.md` already exists in the project or above it, the Skill tells the user and offers to add an `@AGENTS.md` line instead of writing a second rules file.
+- `brand-handoff`: one `AGENTS.md` serves both Codex and Claude Code. When a `CLAUDE.md`, `.claude/CLAUDE.md`, or `CLAUDE.local.md` in the project or above it stops Claude Code from reading `AGENTS.md`, the Skill tells the user and offers a `CLAUDE.md` beside the project's `AGENTS.md` holding an `@AGENTS.md` line, instead of writing a second rules file.
 
 ## 0.2.0 — 2026-11-19
 
