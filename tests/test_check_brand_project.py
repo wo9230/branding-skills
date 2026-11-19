@@ -178,6 +178,24 @@ class CheckBrandProjectTests(unittest.TestCase):
             edits={"BRAND.md": [("| ai-refined | SRC-001 |", "| | |")]},
         )
 
+    def test_origin_ref_may_list_several_known_ids(self) -> None:
+        # Found in the end-to-end walkthrough: a statement drawn from a questionnaire and a
+        # later call was recorded as "SRC-001、CLM-001", which the check rejected.
+        result = self.check(
+            edits={"BRAND.md": [("| ai-refined | SRC-001 |", "| ai-refined | SRC-001、CLM-001 |")]}
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("0 warnings", result.stdout)
+        self.assert_error(
+            "BRAND.md: origin_ref 'SRC-001、SRC-999' on DEC-POSITIONING-001 "
+            "is not a known source or claim",
+            edits={"BRAND.md": [("| ai-refined | SRC-001 |", "| ai-refined | SRC-001、SRC-999 |")]},
+        )
+        self.assert_error(
+            "BRAND.md: origin_ref '见访谈' on DEC-POSITIONING-001 is not a known source or claim",
+            edits={"BRAND.md": [("| ai-refined | SRC-001 |", "| ai-refined | 见访谈 |")]},
+        )
+
     def test_unknown_segment_schema_brand_id_and_missing_field(self) -> None:
         self.assert_error(
             "BRAND.md: unknown segment 'pet-food'",

@@ -323,6 +323,13 @@ class ReviewFixContractTests(unittest.TestCase):
             self.assertIn("经操作者转述", text, path)
             self.assertIn("变更记录", text, path)
 
+    def test_decision_row_cells_hold_bare_values(self) -> None:
+        # Found in the end-to-end walkthrough: notes such as "经操作者转述" were written
+        # into the owner cell, and two sources were listed in origin_ref.
+        contract = repo_text(FOUNDATION + "references/output-contracts.md")
+        for token in ("只写审批人", "用顿号隔开", "不写进"):
+            self.assertIn(token, contract, token)
+
     def test_working_version_at_the_gate_has_a_recorded_form(self) -> None:
         text = repo_text(JOURNEY + "references/stage-map.md")
         for token in ("接受为工作版本", "保持 `candidate`"):

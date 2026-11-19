@@ -222,7 +222,9 @@ def check_decisions(text: str, is_v2: bool, evidence_ids: set[str]) -> tuple[lis
         origin_ref = row.get("origin_ref", "")
         if formed_by and formed_by not in brandlib.FORMED_BY:
             errors.append(f"BRAND.md: invalid formed_by '{formed_by}' on {decision}")
-        if origin_ref and origin_ref not in evidence_ids:
+        # A statement may draw on more than one source, so the cell may list several ids.
+        origin_ids = brandlib.find_ids(origin_ref)
+        if origin_ref and (not origin_ids or not origin_ids <= evidence_ids):
             errors.append(
                 f"BRAND.md: origin_ref '{origin_ref}' on {decision} is not a known source or claim"
             )
