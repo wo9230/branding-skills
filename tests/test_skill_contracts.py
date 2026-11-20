@@ -465,6 +465,8 @@ class ConsistentDescriptionsContractTests(unittest.TestCase):
             table_header(brandlib.NAME_WRITING_HEADERS),
         ):
             self.assertIn(token, text, token)
+        # The audit quotes each platform as found, so it may repeat a retired spelling.
+        self.assertIn("只出现在三个地方", text)
 
     def test_reference_names_every_kind_of_mismatch(self) -> None:
         text = repo_text(EXPRESSION + "references/consistent-descriptions.md")
@@ -579,6 +581,7 @@ class ConsistencyWiringContractTests(unittest.TestCase):
     def test_handoff_files_carry_the_standard_descriptions(self) -> None:
         for path in (
             "references/company-context.md",
+            "references/output-contracts.md",
             "assets/COMPANY-TEMPLATE.md",
             "assets/AGENTS-TEMPLATE.md",
             "assets/AGENTS-SNIPPET.md",
