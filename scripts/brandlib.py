@@ -55,6 +55,8 @@ NAME_INVENTORY_HEADERS = (
     "fact_status",
     "来源",
 )
+# The table in MESSAGING.md that fixes how each name is written everywhere.
+NAME_WRITING_HEADERS = ("品牌或名称", "语言", "标准写法", "可用简称", "停用写法", "依据")
 STATEMENT_PREFIXES = (
     "DEC-DIAGNOSIS",
     "DEC-POLICY",

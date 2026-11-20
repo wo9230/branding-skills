@@ -433,3 +433,72 @@ class BrandArchitectureContractTests(unittest.TestCase):
         )
         self.assertIn("| 名称与架构 |", repo_text(FOUNDATION + "references/interview-routing.md"))
         self.assertIn("对外用着哪些名称", repo_text(FOUNDATION + "assets/BRAND-WORKBOOK.md"))
+
+
+AUDIT_REPORT = "reports/YYYY-MM-DD-consistency-audit.md"
+
+
+class ConsistentDescriptionsContractTests(unittest.TestCase):
+    def test_reference_covers_standard_descriptions_and_the_audit(self) -> None:
+        text = repo_text(EXPRESSION + "references/consistent-descriptions.md")
+        for heading in (
+            "## 标准说法包含什么",
+            "## 三档介绍",
+            "## 不能变和可以变",
+            "## 平台对照表",
+            "## 给网站用的机构信息",
+            "## 一致性体检",
+            "## 不做什么",
+        ):
+            self.assertIn(heading, text, heading)
+        for token in (
+            "一句话",
+            "短介绍",
+            "标准介绍",
+            "查询日期",
+            "未检查",
+            "alternateName",
+            "sameAs",
+            "DEC-NAME",
+            "DEC-ARCH",
+            AUDIT_REPORT,
+            table_header(brandlib.NAME_WRITING_HEADERS),
+        ):
+            self.assertIn(token, text, token)
+
+    def test_reference_names_every_kind_of_mismatch(self) -> None:
+        text = repo_text(EXPRESSION + "references/consistent-descriptions.md")
+        for kind in (
+            "名称写法不同",
+            "数字或事实对不上",
+            "品类说法不同",
+            "品牌关系说不清",
+            "内容过期",
+            "说了不能说的话",
+        ):
+            self.assertIn(kind, text, kind)
+
+    def test_messaging_template_has_the_standard_section(self) -> None:
+        text = repo_text(EXPRESSION + "assets/MESSAGING-TEMPLATE.md")
+        for token in (
+            "## 标准说法",
+            "### 名称写法",
+            "### 固定用词",
+            "### 三档介绍",
+            "### 平台对照",
+            table_header(brandlib.NAME_WRITING_HEADERS),
+        ):
+            self.assertIn(token, text, token)
+        self.assertLess(text.find("## 标准说法"), text.find("## Claim Map"))
+
+    def test_contract_and_entry_point_to_the_reference(self) -> None:
+        contract = repo_text(EXPRESSION + "references/output-contracts.md")
+        for token in ("标准说法", AUDIT_REPORT, "consistent-descriptions.md"):
+            self.assertIn(token, contract, token)
+        entry = repo_text(EXPRESSION + "SKILL.md")
+        self.assertIn("references/consistent-descriptions.md", entry)
+        self.assertLessEqual(len(entry.splitlines()), 120)
+        self.assertIn(
+            "consistent-descriptions.md",
+            repo_text(EXPRESSION + "references/offer-and-channel-copy.md"),
+        )

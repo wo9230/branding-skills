@@ -1,6 +1,6 @@
 ---
 name: brand-foundation
-description: Establish, audit, or update an evidence-bound internal brand foundation and canonical BRAND.md for personal, company, product, B2B, B2C, DTC, or hybrid brands. Use $brand-expression when the foundation is sufficient and the requested outcome is polished public messaging; use $brand-visual-board for visual direction.
+description: Establish, audit, or update an evidence-bound internal brand foundation and canonical BRAND.md for personal, company, product, B2B, B2C, DTC, or hybrid brands, including how the several brands, sub-brands, or public names of one company relate. Use $brand-expression when the foundation is sufficient and the requested outcome is polished public messaging; use $brand-visual-board for visual direction.
 ---
 
 # Brand Foundation
