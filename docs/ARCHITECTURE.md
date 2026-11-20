@@ -26,11 +26,11 @@ Segment packs live in `skills/brand-journey/references/segments/`. Each pack is 
 
 ### brand-foundation
 
-Separates facts, evidence, decisions, hypotheses, conflicts, and unknowns. Its primary output is `BRAND.md` (`brand-foundation/v2`; v1 records remain readable). It also holds the methods the journey relies on: strategy and execution decisions, and the refine-then-confirm procedure that turns a client's own wording into a statement the client has approved.
+Separates facts, evidence, decisions, hypotheses, conflicts, and unknowns. Its primary output is `BRAND.md` (`brand-foundation/v2`; v1 records remain readable). It also holds the methods the journey relies on: strategy and execution decisions, and the refine-then-confirm procedure that turns a client's own wording into a statement the client has approved. It also covers brand architecture: when a company uses more than one public name, the names are listed as facts and the owner chooses how they relate and how each is spelled.
 
 ### brand-expression
 
-Transforms an existing `BRAND.md` into positioning, message hierarchy, voice guidance, channel-ready drafts, and website page copy without creating new facts. Every load-bearing line is registered with a Copy ID in `MESSAGING.md`.
+Transforms an existing `BRAND.md` into positioning, message hierarchy, voice guidance, channel-ready drafts, and website page copy without creating new facts. Every load-bearing line is registered with a Copy ID in `MESSAGING.md`. It also keeps the standard descriptions (name spelling, one category term, public figures, one introduction in three lengths) and runs the read-only consistency check that compares a company's existing platform descriptions; that result is a dated report under `reports/`.
 
 ### brand-visual-board
 
@@ -50,7 +50,7 @@ Installed Skills contain methods and blank assets. Brand-specific material belon
 - Reports are dated snapshots. They carry a date rather than a version and are never read back as a source of truth.
 - A candidate, hypothesis, or unknown keeps its label in every derived file.
 
-`scripts/check_brand_project.py` reads a project and reports derived files that are stale, references to ids that do not exist, progress states the journey forbids, and approvals without an approver or date. It never writes.
+`scripts/check_brand_project.py` reads a project and reports derived files that are stale, references to ids that do not exist, progress states the journey forbids, and approvals without an approver or date. It also warns when a derived file names the brand differently from the agreed spelling. It never writes.
 
 ## Shared vocabulary
 

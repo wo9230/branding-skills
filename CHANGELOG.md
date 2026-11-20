@@ -2,10 +2,25 @@
 
 ## Unreleased
 
+### Added
+
+- `brand-foundation`: brand architecture for a company that uses more than one public name. `BRAND.md` gains an optional name inventory; the method lists the four usual relationships between brands, with one master brand as the default candidate; and there are two optional decision prefixes, `DEC-ARCH` for how the names relate and `DEC-NAME` for the standard spelling of each. The owner chooses, and the Skill coins no names.
+- `brand-expression`: standard descriptions in `MESSAGING.md`: how each name is written, one category term, the figures that may be public, one introduction in three lengths, and which length each platform uses. Platform length limits are looked up when needed, not stored.
+- `brand-expression`: a read-only consistency check that lays a company's existing descriptions side by side, lists each mismatch by type, and writes `reports/YYYY-MM-DD-consistency-audit.md`. Facts that contradict each other are listed for the owner, never resolved by the Skill.
+- `brand-journey`: stage 0 notes every public name and existing description it reads, stage 1 lists the names, stage 4 settles how they relate when there is more than one, stage 6 fixes the standard spelling, and the consistency check is offered after stage 7. No stage is added, and the per-stage question caps still hold.
+- `scripts/check_brand_project.py`: two warnings, for a `brand_name` that differs between files and for a retired name spelling found in a derived file.
+- Two behaviour scenarios: a company with several brands, and platform descriptions that contradict each other.
+
 ### Changed
 
 - README: Codex installs this repository as a plugin from the same manifest Claude Code uses (`codex plugin marketplace add`, then `codex plugin add`). Checked on Codex CLI 0.166.0, along with the copy-into-`~/.codex/skills` route.
 - `brand-handoff`: one `AGENTS.md` serves both Codex and Claude Code. When a `CLAUDE.md`, `.claude/CLAUDE.md`, or `CLAUDE.local.md` in the project or above it stops Claude Code from reading `AGENTS.md`, the Skill tells the user and offers a `CLAUDE.md` beside the project's `AGENTS.md` holding an `@AGENTS.md` line, instead of writing a second rules file.
+- `brand-handoff`: `COMPANY.md` quotes the standard one-line description word for word, the `AGENTS.md` template and snippet tell agents to keep the standard wording, and `SITE-BRIEF.md` carries the organization details a site gives to search engines.
+- The fictional example moves to version 0.3 and shows a name being standardized after a consistency check.
+
+### Compatibility
+
+- Records and `MESSAGING.md` files without the new content are unaffected: both schemas are unchanged, and the new checks only warn.
 
 ## 0.2.0 — 2026-11-19
 

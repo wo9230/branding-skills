@@ -47,6 +47,17 @@ class DocsAndPackagingTests(unittest.TestCase):
             self.assertIn(token, readme, token)
         self.assertNotIn("在那份 `CLAUDE.md` 里加一行", readme)
 
+    def test_docs_cover_names_standard_descriptions_and_the_audit(self) -> None:
+        readme = repo_text("README.md")
+        for token in ("标准说法", "一致性体检", "品牌关系谱", "多个品牌", "停用"):
+            self.assertIn(token, readme, token)
+        unreleased = repo_text("CHANGELOG.md").split("## 0.2.0", 1)[0]
+        for token in ("### Added", "brand architecture", "standard descriptions", "consistency check"):
+            self.assertIn(token, unreleased, token)
+        architecture = repo_text("docs/ARCHITECTURE.md")
+        for token in ("brand architecture", "standard descriptions", "consistency check"):
+            self.assertIn(token, architecture, token)
+
     def test_contributing_explains_how_to_add_a_segment_pack(self) -> None:
         text = repo_text("CONTRIBUTING.md")
         for token in ("segments/INDEX.md", "validate_skills.py", "check_brand_project.py", "evals/"):
