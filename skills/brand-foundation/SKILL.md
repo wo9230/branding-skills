@@ -57,6 +57,10 @@ An owner's own wording is input, not the finished statement. For diagnosis, poli
 
 `BRAND.md` uses `schema: brand-foundation/v2`. A v1 record stays readable; upgrade it only when the task must write v2 fields, and log the upgrade. For diagnosis, guiding policy, positioning, product, price, channel, or promotion decisions, read [references/strategy-and-execution.md](references/strategy-and-execution.md). When `$brand-journey` calls this Skill, it owns stage order, progress, and client pacing; this Skill still owns the method, the evidence rules, and the record contract.
 
+## More than one name
+
+When the material shows more than one public name (company name, brands, sub-brands, store or account names, product lines), or one name spelled several ways, read [references/brand-architecture.md](references/brand-architecture.md). List every name as a fact first, separate brands from mere names, and offer at most three ways to relate them with what each costs. The default candidate is one master brand; propose keeping brands apart only for a reason a registered fact supports. The owner decides the relationship (`DEC-ARCH`) and the standard spelling of each name (`DEC-NAME`). Do not coin names, and do not judge whether a trademark or domain can be registered. A company with one consistently spelled name needs one line, not this procedure.
+
 ## Finish and hand off
 
 Use [references/output-contracts.md](references/output-contracts.md). Write files only after an explicit create, save, update, write, or export request. A path or an audit request alone is not write permission. Never store brand project data inside the installed Skill directory.

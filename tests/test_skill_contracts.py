@@ -371,3 +371,65 @@ class ReviewFixContractTests(unittest.TestCase):
         for token in ("保留意见", "这些内容从哪里来"):
             self.assertIn(token, template, token)
             self.assertIn(token, contract, token)
+
+
+EXPRESSION = "skills/brand-expression/"
+
+
+def table_header(columns: tuple[str, ...]) -> str:
+    return "| " + " | ".join(columns) + " |"
+
+
+class BrandArchitectureContractTests(unittest.TestCase):
+    def test_architecture_reference_is_complete(self) -> None:
+        text = repo_text(FOUNDATION + "references/brand-architecture.md")
+        for heading in (
+            "## 什么时候用",
+            "## 列名称清单",
+            "## 品牌，还是只是名称",
+            "## 四种关系",
+            "## 默认与分开的理由",
+            "## 怎么提候选",
+            "## 证明与承诺的边界",
+            "## 标准写法",
+            "## 一个品牌一份档案",
+            "## 不做什么",
+        ):
+            self.assertIn(heading, text, heading)
+        for token in (
+            "单一主品牌",
+            "主品牌带子品牌",
+            "背书品牌",
+            "各自独立",
+            "最多三个",
+            "DEC-ARCH",
+            "DEC-NAME",
+            table_header(brandlib.NAME_INVENTORY_HEADERS),
+        ):
+            self.assertIn(token, text, token)
+
+    def test_new_prefixes_are_shared_vocabulary(self) -> None:
+        for prefix in ("DEC-ARCH", "DEC-NAME"):
+            self.assertIn(prefix, brandlib.NEW_DECISION_PREFIXES)
+            self.assertNotIn(prefix, brandlib.STATEMENT_PREFIXES)
+            self.assertEqual(brandlib.find_ids(f"{prefix}-001"), {f"{prefix}-001"})
+
+    def test_output_contract_registers_the_name_inventory(self) -> None:
+        text = repo_text(FOUNDATION + "references/output-contracts.md")
+        for token in (
+            "对外名称清单",
+            table_header(brandlib.NAME_INVENTORY_HEADERS),
+            "可选内容",
+            "brand-architecture.md",
+        ):
+            self.assertIn(token, text, token)
+
+    def test_entry_routing_and_workbook_reach_the_reference(self) -> None:
+        entry = repo_text(FOUNDATION + "SKILL.md")
+        self.assertIn("references/brand-architecture.md", entry)
+        self.assertLessEqual(len(entry.splitlines()), 120)
+        self.assertIn(
+            "brand-architecture.md", repo_text(FOUNDATION + "references/scenario-branches.md")
+        )
+        self.assertIn("| 名称与架构 |", repo_text(FOUNDATION + "references/interview-routing.md"))
+        self.assertIn("对外用着哪些名称", repo_text(FOUNDATION + "assets/BRAND-WORKBOOK.md"))

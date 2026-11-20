@@ -42,6 +42,18 @@ NEW_DECISION_PREFIXES = (
     "DEC-PROMO",
     "DEC-GOAL",
     "DEC-SITE",
+    "DEC-ARCH",
+    "DEC-NAME",
+)
+# The optional table in BRAND.md group 2 that lists every name a company uses in public.
+NAME_INVENTORY_HEADERS = (
+    "名称",
+    "类型",
+    "卖什么、卖给谁",
+    "出现在哪里",
+    "见到的其他写法",
+    "fact_status",
+    "来源",
 )
 STATEMENT_PREFIXES = (
     "DEC-DIAGNOSIS",
