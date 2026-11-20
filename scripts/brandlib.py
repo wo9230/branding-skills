@@ -168,6 +168,24 @@ def iter_table_rows(text: str, required_headers: Iterable[str]) -> Iterator[dict
             yield dict(zip(headers, padded))
 
 
+def drop_tables(text: str, required_headers: Iterable[str]) -> str:
+    """Return the text without the tables that have the given headers."""
+    required = set(required_headers)
+    kept: list[str] = []
+    in_table = False
+    dropping = False
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line.startswith("|"):
+            in_table = dropping = False
+        elif not in_table:
+            in_table = True
+            dropping = required.issubset(_cells(line))
+        if not dropping:
+            kept.append(raw)
+    return "\n".join(kept)
+
+
 def is_valid_stage_status(value: str) -> bool:
     """Accept an exact status or a ``deferred: ``/``skipped: `` prefix with a reason."""
     if value in STAGE_STATUSES:

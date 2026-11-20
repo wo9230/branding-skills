@@ -2,8 +2,9 @@
 """Read-only self-check for a client brand project.
 
 Reports files that are stale against BRAND.md, references to ids that do not
-exist, progress states the journey does not allow, and approvals that lack an
-approver or date. It never writes to the project.
+exist, progress states the journey does not allow, approvals that lack an
+approver or date, and names written differently from the agreed spelling. It
+never writes to the project.
 """
 
 from __future__ import annotations
@@ -33,6 +34,8 @@ REQUIRED_FIELDS = {
         "primary_conversion",
     ),
 }
+# Cells in the name-writing table that mean "none".
+EMPTY_CELLS = ("", "无", "—", "-")
 STAGE_SECTION = re.compile(r"^## 阶段[^\n]*\n(?P<body>.*?)(?=^## |\Z)", re.S | re.M)
 
 
@@ -256,6 +259,47 @@ def check_decisions(text: str, is_v2: bool, evidence_ids: set[str]) -> tuple[lis
     return errors, warnings
 
 
+def spellings(cell: str) -> set[str]:
+    """Split a name-table cell on the list comma "、"; an ordinary comma may be part of a name."""
+    return {item.strip() for item in cell.split("、")} - set(EMPTY_CELLS)
+
+
+def check_names(texts: dict[str, str], headers: dict[str, dict[str, str]]) -> list[str]:
+    """Warn when a derived file names the brand differently from what was agreed."""
+    warnings: list[str] = []
+    brand_name = headers["BRAND.md"].get("brand_name", "")
+    for name in DERIVED_FILES:
+        derived_name = headers.get(name, {}).get("brand_name", "")
+        if brand_name and derived_name and derived_name != brand_name:
+            warnings.append(
+                f"{name}: brand_name '{derived_name}' does not match BRAND.md '{brand_name}'"
+            )
+
+    in_use: set[str] = set()
+    retired: set[str] = set()
+    rows = brandlib.iter_table_rows(texts.get("MESSAGING.md", ""), brandlib.NAME_WRITING_HEADERS)
+    for row in rows:
+        in_use |= spellings(row["标准写法"]) | spellings(row["可用简称"])
+        retired |= spellings(row["停用写法"])
+    retired -= in_use
+    if not retired:
+        return warnings
+
+    # Longest spelling first: "样本实验室" must not be read as the retired "样本", and the
+    # retired "样本 温控" must not be read as the short name "样本".
+    ordered = sorted(in_use | retired, key=lambda spelling: (-len(spelling), spelling))
+    pattern = re.compile("|".join(re.escape(spelling) for spelling in ordered))
+    for name in DERIVED_FILES:
+        # The name table is the one place a retired spelling belongs.
+        body = brandlib.drop_tables(texts.get(name, ""), brandlib.NAME_WRITING_HEADERS)
+        found = {match.group(0) for match in pattern.finditer(body)} & retired
+        warnings += [
+            f"{name}: retired name spelling '{spelling}' (see the name table in MESSAGING.md)"
+            for spelling in sorted(found)
+        ]
+    return warnings
+
+
 def check_project(project: Path, repo_root: Path) -> tuple[list[str], list[str], int]:
     """Return ``(errors, warnings, files_checked)`` for one client project directory."""
     texts, unreadable = read_project_files(project)
@@ -293,6 +337,7 @@ def check_project(project: Path, repo_root: Path) -> tuple[list[str], list[str],
     decision_errors, decision_warnings = check_decisions(brand_text, is_v2, evidence_ids)
     errors += decision_errors
     warnings += decision_warnings
+    warnings += check_names(texts, headers)
 
     if "SITE-BRIEF.md" in texts and "PROGRESS.md" in texts:
         modules = brandlib.parse_inline_list(headers["PROGRESS.md"].get("modules", ""))
