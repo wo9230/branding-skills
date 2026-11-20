@@ -26,6 +26,7 @@ DEMO_FILES = (
     "COMPANY.md",
     "SITE-BRIEF.md",
     "reports/2025-01-15-client-confirmation.md",
+    "reports/2025-01-20-consistency-audit.md",
 )
 
 
@@ -296,6 +297,74 @@ class DemoTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("unknown reference COPY-999", result.stdout)
             self.assertNotIn("DEMO PASSED", result.stdout)
+
+    def test_example_shows_names_and_standard_descriptions(self) -> None:
+        brand = (EXAMPLE / "BRAND.md").read_text(encoding="utf-8")
+        self.assertEqual(brandlib.parse_frontmatter(brand)["version"], "0.3")
+        self.assertTrue(list(brandlib.iter_table_rows(brand, brandlib.NAME_INVENTORY_HEADERS)))
+        decisions = {
+            row["Decision ID"]: row["decision_status"]
+            for row in brandlib.iter_table_rows(brand, ["Decision ID", "decision_status"])
+        }
+        self.assertEqual(decisions["DEC-NAME-001"], "approved")
+
+        messaging = (EXAMPLE / "MESSAGING.md").read_text(encoding="utf-8")
+        names = list(brandlib.iter_table_rows(messaging, brandlib.NAME_WRITING_HEADERS))
+        self.assertEqual(names[0]["依据"], "DEC-NAME-001")
+        retired = names[0]["停用写法"].split("、")
+        self.assertTrue(all(retired))
+        tiers = {
+            row["档"]: row for row in brandlib.iter_table_rows(messaging, ["档", "Copy ID", "文案"])
+        }
+        self.assertEqual(list(tiers), ["一句话", "短介绍", "标准介绍"])
+        registered = {
+            row["Copy ID"].split("：")[0]
+            for row in brandlib.iter_table_rows(messaging, ["Copy ID", "放行结论与限制"])
+        }
+        for row in tiers.values():
+            self.assertIn(row["Copy ID"], registered)
+            self.assertIn(names[0]["标准写法"], row["文案"])
+        # One introduction in three lengths: each is longer than the one before.
+        lengths = [len(row["文案"]) for row in tiers.values()]
+        self.assertEqual(lengths, sorted(lengths))
+
+        company = (EXAMPLE / "COMPANY.md").read_text(encoding="utf-8")
+        self.assertIn(tiers["一句话"]["文案"], company)
+        self.assertIn(tiers["一句话"]["Copy ID"], company)
+        self.assertIn("DEC-NAME-001", company)
+        brief = (EXAMPLE / "SITE-BRIEF.md").read_text(encoding="utf-8")
+        self.assertIn("机构信息", brief)
+        for text in (company, brief):
+            for spelling in retired:
+                self.assertNotIn(spelling, text)
+
+    def test_example_audit_report_follows_the_contract(self) -> None:
+        report = (EXAMPLE / "reports" / "2025-01-20-consistency-audit.md").read_text(
+            encoding="utf-8"
+        )
+        headings = [line for line in report.splitlines() if line.startswith("## ")]
+        self.assertEqual(
+            headings,
+            [
+                "## 一、看了哪些地方",
+                "## 二、并排对照",
+                "## 三、不一致清单",
+                "## 四、各处该换成什么",
+                "## 五、需要您确认的事",
+            ],
+        )
+        for token in ("未检查", "名称写法不同", "说了不能说的话", "COPY-008"):
+            self.assertIn(token, report, token)
+        for label in ("[用户自述]", "[候选决策]", "fact_status"):
+            self.assertNotIn(label, report, label)
+
+    def test_example_agents_file_matches_the_template(self) -> None:
+        template = (REPO_ROOT / "skills/brand-handoff/assets/AGENTS-TEMPLATE.md").read_text(
+            encoding="utf-8"
+        )
+        example = (EXAMPLE / "AGENTS.md").read_text(encoding="utf-8")
+        # The example carries one leading comment line that marks it as fictional.
+        self.assertEqual(example.split("\n", 2)[2], template)
 
 
 class VerifyReleaseTests(unittest.TestCase):

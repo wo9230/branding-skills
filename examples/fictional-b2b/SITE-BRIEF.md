@@ -4,10 +4,10 @@ brand_id: northline-sensor-lab-fictional
 brand_name: Northline Sensor Lab
 brief_status: working
 foundation_file: BRAND.md
-foundation_version: 0.2
-messaging_version: 0.2
+foundation_version: 0.3
+messaging_version: 0.3
 design_file: ""
-generated: 2025-01-15
+generated: 2025-01-20
 language: zh-CN
 primary_conversion: 提交预约表单
 platform: ""
@@ -18,7 +18,7 @@ fictional: true
 
 > **Synthetic Example / 虚构案例。** 企业、客户和数字都是编的。
 
-本文件由 `BRAND.md` 和 `MESSAGING.md` 派生，到"页面结构和每页说什么"为止。不含代码，不指定建站技术。状态为 `working`：主线两个关卡都已通过，但关于页的文案还没写，推广决策仍是候选。
+本文件由 `BRAND.md` 和 `MESSAGING.md` 派生，到"页面结构和每页说什么"为止。不含代码，不指定建站技术。状态为 `working`：主线两个关卡都已通过，但关于页的起源部分还没写，推广决策仍是候选。
 
 ## 1. 网站的任务
 
@@ -76,7 +76,7 @@ fictional: true
 
 - 目的：让访客知道是谁在做，为什么做。
 - 回答访客的哪个问题：这家可不可信？
-- 主信息：待表达（依据 `BRAND.md` 第 5 组的起源，用户自述）。
+- 主信息：开头用 COPY-010；起源部分待表达（依据 `BRAND.md` 第 5 组的起源，用户自述）。
 - 区块顺序：起源；我们只做什么、不做什么；联系方式。
 - 要放的证明：无可公开的客户证明。CLM-001、CLM-002 仅内部；CLM-003 未获授权。
 - 行动按钮：COPY-004。
@@ -120,10 +120,11 @@ fictional: true
 | 位置问题清单示意图 | 缺失 | 需自制，不得用真实客户的清单 | 服务 |
 | 流程示意图 | 缺失 | 需自制 | 我们怎么做 |
 | 负责人照片 | 缺失 | 待负责人提供 | 关于我们 |
+| 各平台主页的链接 | 缺失 | 待负责人提供并确认是自己的账号 | 机构信息 |
 
 ## 8. 放行检查
 
-- 可以公开出现：COPY-001、COPY-002、COPY-003、COPY-004、COPY-005、COPY-006；CLM-004。
+- 可以公开出现：COPY-001、COPY-002、COPY-003、COPY-004、COPY-005、COPY-006、COPY-008、COPY-009、COPY-010；CLM-004。
 - 只能内部使用：CLM-001、CLM-002。
 - 绝对不能出现：COPY-007 与 CLM-003（未获授权的评价）；试点客户的名称；任何价格金额；"通过审厂""减少事故""节省整改时间"。
 
@@ -132,4 +133,5 @@ fictional: true
 - 只用第 3 节引用的文案和证明，不新增承诺、数字、客户名称或评价。
 - 缺素材或"待表达"的地方留空并标注，不自行补写，不用没有授权的图片。
 - 还没有 `output/DESIGN.md`，先不做视觉定稿。
+- 机构信息：名称写 Northline Sensor Lab，别名写 Northline，简介用 COPY-010；各平台主页的链接还没给，先留空。全站页面里的名称都用这个写法（DEC-NAME-001）。
 - 每月短文（DEC-PROMO-001）仍是候选，不要建博客或文章栏目。
