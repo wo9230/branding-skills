@@ -502,3 +502,89 @@ class ConsistentDescriptionsContractTests(unittest.TestCase):
             "consistent-descriptions.md",
             repo_text(EXPRESSION + "references/offer-and-channel-copy.md"),
         )
+
+
+def must_answer_counts(stage_map: str) -> dict[str, int]:
+    """Count the bullets under every bold "必答" label, per stage section of the stage map."""
+    counts: dict[str, int] = {}
+    stage = ""
+    counting = False
+    for line in stage_map.splitlines():
+        if line.startswith("## "):
+            head = line[3:].split("：", 1)[0]
+            stage = head.split(" ", 1)[1] if head.startswith(("阶段 ", "模块 ")) else ""
+            counting = False
+        elif line.startswith("**"):
+            counting = "必答" in line
+        elif counting and stage and line.startswith("- "):
+            counts[stage] = counts.get(stage, 0) + 1
+    return counts
+
+
+def pack_must_answer_counts(pack: str) -> dict[str, int]:
+    """Count the "- 必答：" bullets a segment pack adds to each stage."""
+    counts: dict[str, int] = {}
+    stage = ""
+    for line in pack.splitlines():
+        if line.startswith("### 阶段 "):
+            stage = line.split(" ")[2]
+        elif line.startswith("#"):
+            stage = ""
+        elif stage and line.startswith("- 必答："):
+            counts[stage] = counts.get(stage, 0) + 1
+    return counts
+
+
+class ConsistencyWiringContractTests(unittest.TestCase):
+    def test_stage_map_places_names_architecture_and_the_audit(self) -> None:
+        text = repo_text(JOURNEY + "references/stage-map.md")
+        for token in (
+            "对外名称清单",
+            "DEC-ARCH",
+            "DEC-NAME",
+            "一致性体检",
+            "references/brand-architecture.md",
+        ):
+            self.assertIn(token, text, token)
+
+    def test_must_answer_caps_still_hold_with_every_pack(self) -> None:
+        core = must_answer_counts(repo_text(JOURNEY + "references/stage-map.md"))
+        self.assertEqual(core["0"], 4)
+        self.assertEqual(core["6"], 4)
+        for file_name in brandlib.read_segment_index(REPO_ROOT).values():
+            added = pack_must_answer_counts(repo_text(SEGMENTS + file_name))
+            for stage, count in core.items():
+                cap = 4 if stage == "0" else 5
+                self.assertLessEqual(count + added.get(stage, 0), cap, f"{file_name} stage {stage}")
+
+    def test_questionnaire_asks_for_names_and_existing_descriptions(self) -> None:
+        text = repo_text(JOURNEY + "assets/CLIENT-QUESTIONNAIRE.md")
+        core = text.split("<!-- part:core -->", 1)[1].split("<!-- part:execution -->", 1)[0]
+        for token in ("对外用着哪些名字", "现在各处是怎么介绍"):
+            self.assertIn(token, core, token)
+
+    def test_journey_entry_and_contract_mention_the_new_work(self) -> None:
+        entry = repo_text(JOURNEY + "SKILL.md")
+        for token in ("brand architecture", "consistency check", "references/brand-architecture.md"):
+            self.assertIn(token, entry, token)
+        self.assertLessEqual(len(entry.splitlines()), 120)
+        contract = repo_text(JOURNEY + "references/output-contracts.md")
+        for token in ("一致性体检", AUDIT_REPORT, "DEC-ARCH", "DEC-NAME"):
+            self.assertIn(token, contract, token)
+
+    def test_segment_packs_mention_the_name_inventory(self) -> None:
+        for file_name in brandlib.read_segment_index(REPO_ROOT).values():
+            self.assertIn("名称清单", repo_text(SEGMENTS + file_name), file_name)
+
+    def test_handoff_files_carry_the_standard_descriptions(self) -> None:
+        for path in (
+            "references/company-context.md",
+            "assets/COMPANY-TEMPLATE.md",
+            "assets/AGENTS-TEMPLATE.md",
+            "assets/AGENTS-SNIPPET.md",
+        ):
+            self.assertIn("标准说法", repo_text(HANDOFF + path), path)
+        self.assertIn("DEC-ARCH", repo_text(HANDOFF + "references/company-context.md"))
+        for path in ("references/site-brief-method.md", "assets/SITE-BRIEF-TEMPLATE.md"):
+            self.assertIn("机构信息", repo_text(HANDOFF + path), path)
+        self.assertIn("standard descriptions", repo_text(HANDOFF + "SKILL.md"))
