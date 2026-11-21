@@ -408,6 +408,18 @@ class BrandArchitectureContractTests(unittest.TestCase):
         ):
             self.assertIn(token, text, token)
 
+    def test_proof_boundary_covers_undecided_relations_and_contract_work(self) -> None:
+        text = repo_text(FOUNDATION + "references/brand-architecture.md")
+        section = text.split("## 证明与承诺的边界")[1].split("## 标准写法")[0]
+        for token in (
+            "关系还是候选时",
+            "先不互相借用",
+            "代工或贴牌",
+            "对方放行",
+            "不当作自有品牌的证明",
+        ):
+            self.assertIn(token, section, token)
+
     def test_new_prefixes_are_shared_vocabulary(self) -> None:
         for prefix in ("DEC-ARCH", "DEC-NAME"):
             self.assertIn(prefix, brandlib.NEW_DECISION_PREFIXES)
