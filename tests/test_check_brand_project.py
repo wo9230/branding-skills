@@ -417,5 +417,82 @@ class CheckBrandProjectTests(unittest.TestCase):
         self.assertIn("not a directory", result.stderr)
 
 
+NAME_TABLE = (
+    "| 品牌或名称 | 语言 | 标准写法 | 可用简称 | 停用写法 | 依据 |\n"
+    "|---|---|---|---|---|---|\n"
+    "| 样本 | 中文 | {standard} | {short} | {retired} | DEC-POSITIONING-001 |\n"
+)
+RETIRED_WARNING = "- WARN: {name}: retired name spelling '{spelling}' (see the name table in MESSAGING.md)"
+
+
+def with_name_table(standard: str = "样本实验室", short: str = "样本室", retired: str = "样本工坊"):
+    """Edits that put a name-writing table (all names fictional) into MESSAGING.md."""
+    table = NAME_TABLE.format(standard=standard, short=short, retired=retired)
+    return {"MESSAGING.md": [("# Sample MESSAGING（虚构）\n", f"# Sample MESSAGING（虚构）\n\n{table}")]}
+
+
+class NameConsistencyTests(unittest.TestCase):
+    def check(self, edits):
+        with tempfile.TemporaryDirectory() as temporary_root:
+            project = make_project(Path(temporary_root) / "project", edits=edits)
+            result = run_script("check_brand_project.py", project)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        return result.stdout
+
+    def test_brand_name_in_a_derived_file_must_match_brand_md(self) -> None:
+        mismatch = {"COMPANY.md": [("brand_id: sample-fictional", "brand_id: sample-fictional\nbrand_name: Sample Co")]}
+        self.assertIn(
+            "- WARN: COMPANY.md: brand_name 'Sample Co' does not match BRAND.md 'Sample'",
+            self.check(mismatch),
+        )
+        same = {"COMPANY.md": [("brand_id: sample-fictional", "brand_id: sample-fictional\nbrand_name: Sample")]}
+        self.assertIn("0 warnings", self.check(same))
+
+    def test_name_table_alone_raises_no_warning(self) -> None:
+        # The table is the one place a retired spelling is allowed to appear.
+        self.assertIn("0 warnings", self.check(with_name_table()))
+
+    def test_retired_spelling_in_a_derived_file_warns(self) -> None:
+        edits = with_name_table()
+        edits["COMPANY.md"] = [("# Sample 速读（虚构）", "# Sample 速读（虚构）\n\n样本工坊是一家虚构企业。")]
+        edits["MESSAGING.md"].append(("# Sample MESSAGING（虚构）", "# Sample MESSAGING（虚构）\n\n欢迎来到样本工坊。"))
+        output = self.check(edits)
+        for name in ("COMPANY.md", "MESSAGING.md"):
+            self.assertIn(RETIRED_WARNING.format(name=name, spelling="样本工坊"), output)
+        self.assertNotIn("SITE-BRIEF.md: retired", output)
+
+    def test_brand_md_may_record_the_retired_spelling(self) -> None:
+        # The decision that retires a spelling has to name it.
+        edits = with_name_table()
+        edits["BRAND.md"] = [("# Sample BRAND（虚构）", "# Sample BRAND（虚构）\n\n停用样本工坊这个写法。")]
+        self.assertIn("0 warnings", self.check(edits))
+
+    def test_retired_spelling_that_contains_a_short_name_is_still_flagged(self) -> None:
+        edits = with_name_table(short="样本", retired="样本 温控")
+        edits["SITE-BRIEF.md"] = [("# Sample 建站交接（虚构）", "# Sample 建站交接（虚构）\n\n样本 温控，以及样本。")]
+        self.assertIn(RETIRED_WARNING.format(name="SITE-BRIEF.md", spelling="样本 温控"), self.check(edits))
+
+    def test_standard_spelling_that_contains_a_retired_one_is_not_flagged(self) -> None:
+        edits = with_name_table(standard="样本实验室", short="", retired="样本")
+        edits["COMPANY.md"] = [("# Sample 速读（虚构）", "# Sample 速读（虚构）\n\n样本实验室是一家虚构企业。")]
+        self.assertIn("0 warnings", self.check(edits))
+        edits["COMPANY.md"] = [("# Sample 速读（虚构）", "# Sample 速读（虚构）\n\n样本实验室，也有人叫它样本。")]
+        self.assertIn(RETIRED_WARNING.format(name="COMPANY.md", spelling="样本"), self.check(edits))
+
+    def test_empty_markers_in_the_retired_cell_are_ignored(self) -> None:
+        for marker in ("", "无", "—"):
+            edits = with_name_table(retired=marker)
+            edits["COMPANY.md"] = [("# Sample 速读（虚构）", "# Sample 速读（虚构）\n\n暂无其他写法 — 仅此一种。")]
+            self.assertIn("0 warnings", self.check(edits), repr(marker))
+
+    def test_spellings_are_split_on_the_list_comma_only(self) -> None:
+        # A legal name such as "Sample Co., Ltd." contains an ordinary comma.
+        edits = with_name_table(standard="Sample Co., Ltd.", short="", retired="Sample Inc、样本工坊")
+        edits["COMPANY.md"] = [("# Sample 速读（虚构）", "# Sample 速读（虚构）\n\nSample Co., Ltd. 曾写作 Sample Inc。")]
+        output = self.check(edits)
+        self.assertIn(RETIRED_WARNING.format(name="COMPANY.md", spelling="Sample Inc"), output)
+        self.assertIn("1 warnings", output)
+
+
 if __name__ == "__main__":
     unittest.main()

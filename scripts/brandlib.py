@@ -42,7 +42,21 @@ NEW_DECISION_PREFIXES = (
     "DEC-PROMO",
     "DEC-GOAL",
     "DEC-SITE",
+    "DEC-ARCH",
+    "DEC-NAME",
 )
+# The optional table in BRAND.md group 2 that lists every name a company uses in public.
+NAME_INVENTORY_HEADERS = (
+    "名称",
+    "类型",
+    "卖什么、卖给谁",
+    "出现在哪里",
+    "见到的其他写法",
+    "fact_status",
+    "来源",
+)
+# The table in MESSAGING.md that fixes how each name is written everywhere.
+NAME_WRITING_HEADERS = ("品牌或名称", "语言", "标准写法", "可用简称", "停用写法", "依据")
 STATEMENT_PREFIXES = (
     "DEC-DIAGNOSIS",
     "DEC-POLICY",
@@ -152,6 +166,24 @@ def iter_table_rows(text: str, required_headers: Iterable[str]) -> Iterator[dict
         if wanted:
             padded = cells + [""] * (len(headers) - len(cells))
             yield dict(zip(headers, padded))
+
+
+def drop_tables(text: str, required_headers: Iterable[str]) -> str:
+    """Return the text without the tables that have the given headers."""
+    required = set(required_headers)
+    kept: list[str] = []
+    in_table = False
+    dropping = False
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line.startswith("|"):
+            in_table = dropping = False
+        elif not in_table:
+            in_table = True
+            dropping = required.issubset(_cells(line))
+        if not dropping:
+            kept.append(raw)
+    return "\n".join(kept)
 
 
 def is_valid_stage_status(value: str) -> bool:

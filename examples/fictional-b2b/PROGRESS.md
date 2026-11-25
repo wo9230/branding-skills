@@ -7,7 +7,7 @@ conduct_mode: live
 pace: focused
 current_stage: "7"
 next_question: ""
-updated: 2025-01-15
+updated: 2025-01-20
 fictional: true
 ---
 
@@ -39,6 +39,7 @@ fictional: true
 - DEC-MESSAGE-001 主信息（已批准）
 - DEC-SITE-001 网站的任务（已批准）
 - DEC-PROMO-001 每月短文（候选）
+- DEC-NAME-001 名称的标准写法（已批准）
 
 ## 稍后处理清单
 
@@ -53,3 +54,4 @@ fictional: true
 - 2025-01-10 至 2025-01-12 现场主持，阶段 4 到 6
 - 2025-01-13 至 2025-01-14 现场主持，模块 E1、E2、W1
 - 2025-01-15 阶段 7，客户确认报告由 fictional-founder 确认
+- 2025-01-18 至 2025-01-20 比对三处现有介绍，fictional-founder 逐项答复，见 reports/2025-01-20-consistency-audit.md

@@ -26,6 +26,8 @@ EXPECTED_EVALS: tuple[str, ...] = (
     "15-hybrid-client",
     "16-add-module-later",
     "17-company-cold-read",
+    "18-multi-brand-architecture",
+    "19-conflicting-descriptions",
 )
 EVAL_HEADINGS = ("## 材料", "## 操作", "## 应当出现", "## 不应出现")
 

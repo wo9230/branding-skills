@@ -7,8 +7,8 @@
 | Skill | 做什么 | 主要输出 |
 |---|---|---|
 | [`brand-journey`](skills/brand-journey/SKILL.md) | 总入口。分阶段主持访谈，记录进度，随时续接，按客户类型自动加问 | `PROGRESS.md`、客户确认报告 |
-| [`brand-foundation`](skills/brand-foundation/SKILL.md) | 整理品牌事实、证据、受众、定位和关键决策；把客户的原话优化后交给客户确认 | `BRAND.md` |
-| [`brand-expression`](skills/brand-expression/SKILL.md) | 把品牌基础转成定位表述、核心信息、品牌声音、渠道文案和网站页面文案 | `MESSAGING.md` |
+| [`brand-foundation`](skills/brand-foundation/SKILL.md) | 整理品牌事实、证据、受众、定位和关键决策；企业有多个品牌或名称时理清它们的关系；把客户的原话优化后交给客户确认 | `BRAND.md` |
+| [`brand-expression`](skills/brand-expression/SKILL.md) | 把品牌基础转成定位表述、核心信息、品牌声音、渠道文案和网站页面文案；定一套各平台通用的标准说法，并比对各处现有的介绍 | `MESSAGING.md`、一致性体检报告 |
 | [`brand-visual-board`](skills/brand-visual-board/SKILL.md) | 把品牌基础和表达转成视觉方向与品牌板 | `output/brand-board.html`、`output/DESIGN.md` |
 | [`brand-handoff`](skills/brand-handoff/SKILL.md) | 把档案整理成给 AI 的速读文件和建站交接文件 | `COMPANY.md`、`SITE-BRIEF.md`、`AGENTS.md` |
 
@@ -51,6 +51,20 @@ brand-journey ──────────── 进度文件 PROGRESS.md
 
 客户类型由细分包自动补充：外贸 B2B、国内 B2B、DTC 电商。哪一类都不像时只走通用主线。
 
+### 多个品牌与统一说法
+
+同一家企业在官网、平台店铺、画册和销售的口头介绍里常常各说各的，名字多的企业更容易乱。这部分不增加访谈阶段，在原有的阶段里顺带完成：
+
+- **多个品牌或名称**：访谈时把企业对外用着的名称列成清单。不止一个时，AI 按通行的四种关系（单一主品牌、主品牌带子品牌、背书品牌、各自独立）给出最多三个候选和各自的代价，由客户选。默认建议只用一个主品牌。只有一个名称的企业一句话带过。
+- **标准说法**：在 `MESSAGING.md` 里固定名称的写法、品类的叫法、可以公开的数字，以及一句话、短介绍、标准介绍三档。各平台只换长短和语气，不换说法。平台的字数上限经常变，不写死，用的时候再查。
+- **一致性体检**：把各处现有的介绍交给 AI，它并排比对，列出名称、数字、品类说法对不上的地方，以及各处该换成哪一档。数字对不上时，AI 不猜哪个对，交给客户确认。它只读，不登录也不修改任何平台。
+
+单独做一次体检，可以这样说：
+
+```text
+使用 $brand-expression 把官网、店铺和画册上的公司介绍对一下，列出不一致的地方。
+```
+
 ## 快速开始
 
 ### Claude Code
@@ -72,10 +86,21 @@ brand-journey ──────────── 进度文件 PROGRESS.md
 
 ### Codex
 
+把本仓库装成插件。Codex 读的是和 Claude Code 同一份插件清单：
+
+```bash
+codex plugin marketplace add wo9230/branding-skills
+codex plugin add branding-skills@branding-skills
+```
+
+也可以不装插件，直接复制 Skill：
+
 ```bash
 mkdir -p ~/.codex/skills
 cp -R skills/brand-journey skills/brand-foundation skills/brand-expression skills/brand-visual-board skills/brand-handoff ~/.codex/skills/
 ```
+
+两种装法都在 Codex CLI 0.166.0 上验证过。
 
 ### 建一个客户项目
 
@@ -103,6 +128,17 @@ python3 scripts/create_brand_project.py ../my-client --segment export-b2b --modu
 
 中断之后再回来，说一句"继续"即可，它会从 `PROGRESS.md` 记录的下一问接着问。只想整理现有材料、不走整套访谈时，直接用 `$brand-foundation`。
 
+`$brand-journey` 这种写法指的是技能名。在 Codex 里输入 `$` 可以从列表里选技能；在 Claude Code 里直接说出技能名即可。
+
+### Claude Code 和 Codex 共用一套
+
+两个工具用的是同一套文件，不需要各维护一份：
+
+- **技能**：两边装的都是本仓库的 `skills/` 目录。
+- **客户项目里的规则**：只有一份 `AGENTS.md`。Codex 自动读它。Claude Code 从 v2.1.277 起，在没有别的文件挡住时也自动读它。
+- **什么会挡住**：客户项目目录或任何一级上级目录里有 `CLAUDE.md`、`.claude/CLAUDE.md` 或 `CLAUDE.local.md`。有其中一份，Claude Code 就只读那些文件，不读 `AGENTS.md`。主目录下的 `~/.claude/CLAUDE.md` 不算。
+- **被挡住时怎么办**：在客户项目根目录、和 `AGENTS.md` 同一个目录里，放一份 `CLAUDE.md`，里面写一行 `@AGENTS.md`。这个目录里已经有 `CLAUDE.md` 时，直接加这一行。不要把这一行加到上级目录的文件里：`@` 后面的路径从那个文件所在的目录算起，读不到客户项目里的这一份。更早版本的 Claude Code 也用这个办法。
+
 ## 客户项目里的文件
 
 ```text
@@ -115,7 +151,7 @@ python3 scripts/create_brand_project.py ../my-client --segment export-b2b --modu
   SITE-BRIEF.md   建站交接（派生，做了建站模块才有）
   intake/         客户问卷和工作簿
   sources/        已授权、已脱敏的资料
-  reports/        给客户确认的报告、日期快照
+  reports/        给客户确认的报告、一致性体检报告、日期快照
   output/         品牌板、DESIGN.md
 ```
 
@@ -125,7 +161,7 @@ python3 scripts/create_brand_project.py ../my-client --segment export-b2b --modu
 python3 scripts/check_brand_project.py ../my-client
 ```
 
-这个脚本只读不写。它会报告过期的派生文件、引用了不存在编号的地方、被跳过的必选阶段，以及没有写审批人或日期的批准。
+这个脚本只读不写。它会报告过期的派生文件、引用了不存在编号的地方、被跳过的必选阶段，以及没有写审批人或日期的批准。它还会提醒两件事：各文件里的品牌名不一致；派生文件里用了已经停用的名称写法。
 
 ## 与其他技能库的衔接
 
@@ -172,6 +208,7 @@ python3 scripts/check_brand_project.py examples/fictional-b2b
 - 理查德·鲁梅尔特的"战略内核"：诊断、指导方针、连贯行动。
 - April Dunford 的定位五要素。
 - "待办任务"（Jobs to Be Done）与切换访谈。
+- David Aaker 与 Erich Joachimsthaler 的"品牌关系谱"：单一主品牌、子品牌、背书品牌、独立品牌四种关系。
 
 参考过的开源项目：
 

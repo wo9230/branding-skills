@@ -19,6 +19,7 @@ DEMO_FILES = (
     "COMPANY.md",
     "SITE-BRIEF.md",
     "reports/2025-01-15-client-confirmation.md",
+    "reports/2025-01-20-consistency-audit.md",
 )
 
 

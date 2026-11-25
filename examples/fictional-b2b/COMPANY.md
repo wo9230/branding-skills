@@ -3,9 +3,9 @@ schema: company-context/v1
 brand_id: northline-sensor-lab-fictional
 brand_name: Northline Sensor Lab
 foundation_file: BRAND.md
-foundation_version: 0.2
-messaging_version: 0.2
-generated: 2025-01-15
+foundation_version: 0.3
+messaging_version: 0.3
+generated: 2025-01-20
 allowed_use: internal
 fictional: true
 ---
@@ -20,6 +20,8 @@ fictional: true
 
 - [用户自述] Northline Sensor Lab 为小型食品冷链仓库检查温度传感器布点，并按月整理校准记录。
 - [已批准决策] 定位：让小型食品仓库的温度记录在审厂时拿得出手（DEC-POSITIONING-001）。
+- 对外介绍用的一句话（照用，不改写）：Northline Sensor Lab 为小型食品冷链仓库整理审厂要看的温度记录。（COPY-008，已放行公开）
+- [已批准决策] 名称统一写作 Northline Sensor Lab，可简称 Northline（DEC-NAME-001）。不再使用的写法见 `MESSAGING.md` 的名称写法表。
 
 ## 2. 业务与产品线
 
@@ -74,7 +76,8 @@ fictional: true
 - 不出现试点客户的名称；检查记录是受限材料。
 - 不引用试点库管的评价（CLM-003，未获授权）。
 - 不写任何价格金额。
-- 不说能出具校准证书。
+- 不说能出具校准证书，也不把自己说成做传感器校准的。
+- 不用"多家"这类没有记录的数量。
 
 ## 9. 声音
 
@@ -96,6 +99,7 @@ fictional: true
 - 具体价格和推广预算。
 - 同类服务商的实际报价和服务范围。
 - 每月短文做不做。
+- 公司注册全称。
 
 ## 12. 细节去哪里读
 
@@ -103,3 +107,4 @@ fictional: true
 - 页面文案与放行范围：`MESSAGING.md`
 - 网站结构与逐页内容：`SITE-BRIEF.md`
 - 访谈进度：`PROGRESS.md`
+- 各处现有介绍的比对：`reports/2025-01-20-consistency-audit.md`

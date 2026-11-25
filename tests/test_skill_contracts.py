@@ -278,6 +278,26 @@ class HandoffContractTests(unittest.TestCase):
         ):
             self.assertIn(token, text, token)
 
+    def test_one_agents_file_serves_claude_code_and_codex(self) -> None:
+        contract = repo_text(HANDOFF + "references/output-contracts.md")
+        for token in ("Codex", "Claude Code", "@AGENTS.md"):
+            self.assertIn(token, contract, token)
+
+    def test_claude_md_import_sits_beside_the_project_agents_file(self) -> None:
+        contract = repo_text(HANDOFF + "references/output-contracts.md")
+        for token in (
+            "`.claude/CLAUDE.md`",
+            "`CLAUDE.local.md`",
+            "`~/.claude/CLAUDE.md`",
+            "和 `AGENTS.md` 同一个目录",
+            "不写进上级目录的文件",
+        ):
+            self.assertIn(token, contract, token)
+        self.assertNotIn("在那份 `CLAUDE.md` 里加一行", contract)
+        entry = repo_text(HANDOFF + "SKILL.md")
+        for token in ("`.claude/CLAUDE.md`", "`CLAUDE.local.md`", "beside the project's `AGENTS.md`"):
+            self.assertIn(token, entry, token)
+
 
 if __name__ == "__main__":
     unittest.main()
@@ -351,3 +371,235 @@ class ReviewFixContractTests(unittest.TestCase):
         for token in ("保留意见", "这些内容从哪里来"):
             self.assertIn(token, template, token)
             self.assertIn(token, contract, token)
+
+
+EXPRESSION = "skills/brand-expression/"
+
+
+def table_header(columns: tuple[str, ...]) -> str:
+    return "| " + " | ".join(columns) + " |"
+
+
+class BrandArchitectureContractTests(unittest.TestCase):
+    def test_architecture_reference_is_complete(self) -> None:
+        text = repo_text(FOUNDATION + "references/brand-architecture.md")
+        for heading in (
+            "## 什么时候用",
+            "## 列名称清单",
+            "## 品牌，还是只是名称",
+            "## 四种关系",
+            "## 默认与分开的理由",
+            "## 怎么提候选",
+            "## 证明与承诺的边界",
+            "## 标准写法",
+            "## 一个品牌一份档案",
+            "## 不做什么",
+        ):
+            self.assertIn(heading, text, heading)
+        for token in (
+            "单一主品牌",
+            "主品牌带子品牌",
+            "背书品牌",
+            "各自独立",
+            "最多三个",
+            "DEC-ARCH",
+            "DEC-NAME",
+            table_header(brandlib.NAME_INVENTORY_HEADERS),
+        ):
+            self.assertIn(token, text, token)
+
+    def test_proof_boundary_covers_undecided_relations_and_contract_work(self) -> None:
+        text = repo_text(FOUNDATION + "references/brand-architecture.md")
+        section = text.split("## 证明与承诺的边界")[1].split("## 标准写法")[0]
+        for token in (
+            "关系还是候选时",
+            "先不互相借用",
+            "代工或贴牌",
+            "对方放行",
+            "不当作自有品牌的证明",
+        ):
+            self.assertIn(token, section, token)
+
+    def test_new_prefixes_are_shared_vocabulary(self) -> None:
+        for prefix in ("DEC-ARCH", "DEC-NAME"):
+            self.assertIn(prefix, brandlib.NEW_DECISION_PREFIXES)
+            self.assertNotIn(prefix, brandlib.STATEMENT_PREFIXES)
+            self.assertEqual(brandlib.find_ids(f"{prefix}-001"), {f"{prefix}-001"})
+
+    def test_output_contract_registers_the_name_inventory(self) -> None:
+        text = repo_text(FOUNDATION + "references/output-contracts.md")
+        for token in (
+            "对外名称清单",
+            table_header(brandlib.NAME_INVENTORY_HEADERS),
+            "可选内容",
+            "brand-architecture.md",
+        ):
+            self.assertIn(token, text, token)
+
+    def test_entry_routing_and_workbook_reach_the_reference(self) -> None:
+        entry = repo_text(FOUNDATION + "SKILL.md")
+        self.assertIn("references/brand-architecture.md", entry)
+        self.assertLessEqual(len(entry.splitlines()), 120)
+        self.assertIn(
+            "brand-architecture.md", repo_text(FOUNDATION + "references/scenario-branches.md")
+        )
+        self.assertIn("| 名称与架构 |", repo_text(FOUNDATION + "references/interview-routing.md"))
+        self.assertIn("对外用着哪些名称", repo_text(FOUNDATION + "assets/BRAND-WORKBOOK.md"))
+
+
+AUDIT_REPORT = "reports/YYYY-MM-DD-consistency-audit.md"
+
+
+class ConsistentDescriptionsContractTests(unittest.TestCase):
+    def test_reference_covers_standard_descriptions_and_the_audit(self) -> None:
+        text = repo_text(EXPRESSION + "references/consistent-descriptions.md")
+        for heading in (
+            "## 标准说法包含什么",
+            "## 三档介绍",
+            "## 不能变和可以变",
+            "## 平台对照表",
+            "## 给网站用的机构信息",
+            "## 一致性体检",
+            "## 不做什么",
+        ):
+            self.assertIn(heading, text, heading)
+        for token in (
+            "一句话",
+            "短介绍",
+            "标准介绍",
+            "查询日期",
+            "未检查",
+            "alternateName",
+            "sameAs",
+            "DEC-NAME",
+            "DEC-ARCH",
+            AUDIT_REPORT,
+            table_header(brandlib.NAME_WRITING_HEADERS),
+        ):
+            self.assertIn(token, text, token)
+        # The audit quotes each platform as found, so it may repeat a retired spelling.
+        self.assertIn("只出现在三个地方", text)
+
+    def test_reference_names_every_kind_of_mismatch(self) -> None:
+        text = repo_text(EXPRESSION + "references/consistent-descriptions.md")
+        for kind in (
+            "名称写法不同",
+            "数字或事实对不上",
+            "品类说法不同",
+            "品牌关系说不清",
+            "内容过期",
+            "说了不能说的话",
+        ):
+            self.assertIn(kind, text, kind)
+
+    def test_messaging_template_has_the_standard_section(self) -> None:
+        text = repo_text(EXPRESSION + "assets/MESSAGING-TEMPLATE.md")
+        for token in (
+            "## 标准说法",
+            "### 名称写法",
+            "### 固定用词",
+            "### 三档介绍",
+            "### 平台对照",
+            table_header(brandlib.NAME_WRITING_HEADERS),
+        ):
+            self.assertIn(token, text, token)
+        self.assertLess(text.find("## 标准说法"), text.find("## Claim Map"))
+
+    def test_contract_and_entry_point_to_the_reference(self) -> None:
+        contract = repo_text(EXPRESSION + "references/output-contracts.md")
+        for token in ("标准说法", AUDIT_REPORT, "consistent-descriptions.md"):
+            self.assertIn(token, contract, token)
+        entry = repo_text(EXPRESSION + "SKILL.md")
+        self.assertIn("references/consistent-descriptions.md", entry)
+        self.assertLessEqual(len(entry.splitlines()), 120)
+        self.assertIn(
+            "consistent-descriptions.md",
+            repo_text(EXPRESSION + "references/offer-and-channel-copy.md"),
+        )
+
+
+def must_answer_counts(stage_map: str) -> dict[str, int]:
+    """Count the bullets under every bold "必答" label, per stage section of the stage map."""
+    counts: dict[str, int] = {}
+    stage = ""
+    counting = False
+    for line in stage_map.splitlines():
+        if line.startswith("## "):
+            head = line[3:].split("：", 1)[0]
+            stage = head.split(" ", 1)[1] if head.startswith(("阶段 ", "模块 ")) else ""
+            counting = False
+        elif line.startswith("**"):
+            counting = "必答" in line
+        elif counting and stage and line.startswith("- "):
+            counts[stage] = counts.get(stage, 0) + 1
+    return counts
+
+
+def pack_must_answer_counts(pack: str) -> dict[str, int]:
+    """Count the "- 必答：" bullets a segment pack adds to each stage."""
+    counts: dict[str, int] = {}
+    stage = ""
+    for line in pack.splitlines():
+        if line.startswith("### 阶段 "):
+            stage = line.split(" ")[2]
+        elif line.startswith("#"):
+            stage = ""
+        elif stage and line.startswith("- 必答："):
+            counts[stage] = counts.get(stage, 0) + 1
+    return counts
+
+
+class ConsistencyWiringContractTests(unittest.TestCase):
+    def test_stage_map_places_names_architecture_and_the_audit(self) -> None:
+        text = repo_text(JOURNEY + "references/stage-map.md")
+        for token in (
+            "对外名称清单",
+            "DEC-ARCH",
+            "DEC-NAME",
+            "一致性体检",
+            "references/brand-architecture.md",
+        ):
+            self.assertIn(token, text, token)
+
+    def test_must_answer_caps_still_hold_with_every_pack(self) -> None:
+        core = must_answer_counts(repo_text(JOURNEY + "references/stage-map.md"))
+        self.assertEqual(core["0"], 4)
+        self.assertEqual(core["6"], 4)
+        for file_name in brandlib.read_segment_index(REPO_ROOT).values():
+            added = pack_must_answer_counts(repo_text(SEGMENTS + file_name))
+            for stage, count in core.items():
+                cap = 4 if stage == "0" else 5
+                self.assertLessEqual(count + added.get(stage, 0), cap, f"{file_name} stage {stage}")
+
+    def test_questionnaire_asks_for_names_and_existing_descriptions(self) -> None:
+        text = repo_text(JOURNEY + "assets/CLIENT-QUESTIONNAIRE.md")
+        core = text.split("<!-- part:core -->", 1)[1].split("<!-- part:execution -->", 1)[0]
+        for token in ("对外用着哪些名字", "现在各处是怎么介绍"):
+            self.assertIn(token, core, token)
+
+    def test_journey_entry_and_contract_mention_the_new_work(self) -> None:
+        entry = repo_text(JOURNEY + "SKILL.md")
+        for token in ("brand architecture", "consistency check", "references/brand-architecture.md"):
+            self.assertIn(token, entry, token)
+        self.assertLessEqual(len(entry.splitlines()), 120)
+        contract = repo_text(JOURNEY + "references/output-contracts.md")
+        for token in ("一致性体检", AUDIT_REPORT, "DEC-ARCH", "DEC-NAME"):
+            self.assertIn(token, contract, token)
+
+    def test_segment_packs_mention_the_name_inventory(self) -> None:
+        for file_name in brandlib.read_segment_index(REPO_ROOT).values():
+            self.assertIn("名称清单", repo_text(SEGMENTS + file_name), file_name)
+
+    def test_handoff_files_carry_the_standard_descriptions(self) -> None:
+        for path in (
+            "references/company-context.md",
+            "references/output-contracts.md",
+            "assets/COMPANY-TEMPLATE.md",
+            "assets/AGENTS-TEMPLATE.md",
+            "assets/AGENTS-SNIPPET.md",
+        ):
+            self.assertIn("标准说法", repo_text(HANDOFF + path), path)
+        self.assertIn("DEC-ARCH", repo_text(HANDOFF + "references/company-context.md"))
+        for path in ("references/site-brief-method.md", "assets/SITE-BRIEF-TEMPLATE.md"):
+            self.assertIn("机构信息", repo_text(HANDOFF + path), path)
+        self.assertIn("standard descriptions", repo_text(HANDOFF + "SKILL.md"))

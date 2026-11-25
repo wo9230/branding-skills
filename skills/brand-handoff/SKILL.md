@@ -27,6 +27,7 @@ Ask once before writing each file. When the user only wants to see the content, 
 Follow [references/company-context.md](references/company-context.md) and start from [assets/COMPANY-TEMPLATE.md](assets/COMPANY-TEMPLATE.md).
 
 - Keep all twelve sections, in order, within about 150 lines.
+- When `MESSAGING.md` has standard descriptions, quote its one-line description word for word in section 1 with its Copy ID, and give the standard spelling of the name. Never coin a one-liner here.
 - Carry over the status label of every item (`[已批准决策]`, `[候选决策]`, `[用户自述]`, `[假设]`, `[未知]`, and the rest). A candidate must still read as a candidate.
 - For a module that was not done, the section body is the single line `本次未做。`
 - When stage 7 of the journey is not done, put the interview-incomplete banner under the title and say which stage has been reached.
@@ -43,6 +44,8 @@ Follow [references/site-brief-method.md](references/site-brief-method.md) and st
 ## Keep AGENTS.md in place
 
 Use [assets/AGENTS-TEMPLATE.md](assets/AGENTS-TEMPLATE.md) for the client project root. Offer [assets/AGENTS-SNIPPET.md](assets/AGENTS-SNIPPET.md) when the website lives in a separate code repository.
+
+One `AGENTS.md` serves both Codex and Claude Code; do not write a second rules file. Claude Code skips `AGENTS.md` when a `CLAUDE.md`, `.claude/CLAUDE.md`, or `CLAUDE.local.md` exists in the project or any directory above it: tell the user which file, and follow the `AGENTS.md` section of [references/output-contracts.md](references/output-contracts.md). The `@AGENTS.md` import goes in a `CLAUDE.md` beside the project's `AGENTS.md`, never in a parent directory's file.
 
 ## Hard rules
 
